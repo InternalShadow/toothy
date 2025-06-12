@@ -1,12 +1,17 @@
-# React + Vite
+# Toothy CRM Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive CRM dashboard built with React and Vite.
+Features modular widgets, dynamic data, and a clean, maintainable codebase.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ⚡ Vite for fast development and HMR
+- ⚛️ React functional components
+- 🎨 Material UI for consistent, accessible UI
+- 📊 Dashboard widgets: Case stats, pending/active cases, overview, charts, and more
+- 🗂️ Modular folder structure for easy scaling
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js v18+ recommended
+- npm v9+ (or use yarn/pnpm)
