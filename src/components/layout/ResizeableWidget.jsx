@@ -1,11 +1,13 @@
+import React, { useState } from "react";
 import { Rnd } from "react-rnd";
-import { Paper, Typography } from "@mui/material";
 
-export default function ResizableDraggableWidget({
+export default function ResizeableWidget({
   children,
   defaultPosition,
   defaultSize,
 }) {
+  const [canDrag, setCanDrag] = useState(false);
+
   return (
     <Rnd
       default={{
@@ -14,10 +16,13 @@ export default function ResizableDraggableWidget({
         width: defaultSize.width,
         height: defaultSize.height,
       }}
+      canDrag={canDrag}
       bounds='parent'
       style={{ zIndex: 1 }}
+      onMouseEnter={() => setCanDrag(true)}
+      onMouseLeave={() => setCanDrag(false)}
     >
-      <Paper sx={{ width: "100%", height: "100%", p: 0.5 }}>{children}</Paper>
+      {children}
     </Rnd>
   );
 }

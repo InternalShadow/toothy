@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Box, Grid } from "@mui/material";
 import DashBoardGrid from "./layout/DashBoardGrid";
 import CaseStats from "./widgets/CaseStats";
@@ -11,6 +11,8 @@ import CaseList from "./widgets/CaseList";
 import ActiveCasesCard from "./widgets/ActiveCasesCard";
 import Footer from "./widgets/Footer";
 import { generateRandomCases } from "./data/CaseData";
+import DashboardDropZone from "./layout/DashBoardDropZone";
+import InteractiveWidget from "./layout/InteractiveWidget";
 
 export default function CRMPrototypeDashboard() {
   const caseData = useMemo(() => generateRandomCases(10), []);
@@ -36,6 +38,24 @@ export default function CRMPrototypeDashboard() {
     };
   }, [caseData]);
 
+  const [widgets, setWidgets] = useState([
+    "caseStats",
+    "pendingCases",
+    "activeCasesCard",
+    "chart",
+    "progressOverviewCard",
+  ]);
+
+  const widgetMap = {
+    caseStats: <CaseStats stats={stats} />,
+    pendingCases: (
+      <PendingCases cases={caseData.filter((c) => c.stat === "Pending")} />
+    ),
+    activeCasesCard: <ActiveCasesCard stats={stats} />,
+    chart: <Chart data={caseData} />,
+    progressOverviewCard: <ProgressOverviewCard stats={stats} />,
+  };
+
   return (
     <Box
       sx={{
@@ -59,39 +79,51 @@ export default function CRMPrototypeDashboard() {
       >
         <Header />
         <Box sx={{ flexGrow: 1 }}>
-          <DashBoardGrid>
-            <Box display='flex' width='100%' gap={2}>
-              <Box flexGrow={1}>
-                <Grid container spacing={3}>
-                  <Grid size={4} item xs={12} sm={6} md={4}>
-                    <CaseStats stats={stats} />
+          <DashboardDropZone onReorderWidgets={setWidgets}>
+            <DashBoardGrid>
+              <Box display='flex' width='100%' gap={2}>
+                <Box flexGrow={1}>
+                  <Grid container spacing={3}>
+                    {widgets.map((widget) => (
+                      <InteractiveWidget id={widget} key={widget}>
+                        <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 3 }}>
+                          {widgetMap[widget]}
+                        </Grid>
+                      </InteractiveWidget>
+                    ))}
+
+                    {/* <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                      <CaseStats stats={stats} />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                      <PendingCases
+                        cases={caseData.filter((c) => c.stat === "Pending")}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                      <ActiveCasesCard stats={stats} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 12, md: 8 }}>
+                      <Chart data={caseData} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                      <ProgressOverviewCard stats={stats} />
+                    </Grid> */}
                   </Grid>
-                  <Grid size={4} item xs={12} sm={6} md={4}>
-                    <PendingCases
-                      cases={caseData.filter((c) => c.stat === "Pending")}
-                    />
-                  </Grid>
-                  <Grid size={4} item xs={12} sm={6} md={4}>
-                    <ActiveCasesCard stats={stats} />
-                  </Grid>
-                  <Grid size={8} item xs={12} sm={12} md={12}>
-                    <Chart data={caseData} />
-                  </Grid>
-                  <Grid size={4} item xs={12} sm={6} md={4}>
-                    <ProgressOverviewCard stats={stats} />
-                  </Grid>
-                </Grid>
+                </Box>
+
+                <Box
+                  sx={{
+                    width: { xs: "100%", md: "50%" },
+                    mt: { xs: 4, md: 0 },
+                  }}
+                >
+                  <CaseList cases={caseData} />
+                </Box>
               </Box>
-              <Box
-                sx={{
-                  width: { xs: "100%", md: "50%" },
-                  mt: { xs: 4, md: 0 },
-                }}
-              >
-                <CaseList cases={caseData} />
-              </Box>
-            </Box>
-          </DashBoardGrid>
+            </DashBoardGrid>
+          </DashboardDropZone>
         </Box>
         <Footer />
       </Box>

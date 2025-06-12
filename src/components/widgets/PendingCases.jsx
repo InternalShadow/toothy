@@ -15,7 +15,8 @@ export default function PendingCases({ cases }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: 200,
+        minHeight: "24vh",
+        minWidth: "15vw",
       }}
     >
       <Box

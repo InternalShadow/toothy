@@ -3,7 +3,6 @@ import { Box, Paper, Typography } from "@mui/material";
 
 export default function CaseStats({ stats }) {
   const [activeCases, setActiveCases] = useState(0);
-  const [dueSoon, setDueSoon] = useState(0);
   const [inReview, setInReview] = useState(0);
 
   useEffect(() => {
@@ -17,7 +16,8 @@ export default function CaseStats({ stats }) {
         p: 2,
         borderRadius: 2,
         boxShadow: 3,
-        minHeight: 200,
+        minHeight: "20vh",
+        minWidth: "15vw",
       }}
     >
       <Typography

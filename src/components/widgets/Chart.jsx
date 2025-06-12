@@ -31,6 +31,8 @@ export default function Chart() {
         backgroundColor: "#111",
         boxShadow: "none",
         color: "#fff",
+        minHeight: "24vh",
+        minWidth: "25vw",
       }}
     >
       <Typography
