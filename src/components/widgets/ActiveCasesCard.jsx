@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 
 const STATES = [
-  { key: "total", label: "Total Cases" },
   { key: "completed", label: "Completed" },
   { key: "pending", label: "Pending" },
   { key: "inProgress", label: "In Progress" },
