@@ -1,13 +1,10 @@
 import React from "react";
-import { Box, Typography, Stack, BottomNavigation } from "@mui/material";
-// import { Copyright } from "@mui/icons-material";
+import { Box, Typography, Stack } from "@mui/material";
 
 export default function Footer() {
   return (
     <Box
       sx={{
-        // position: "relative",
-        // bottom: 0,
         width: "100%",
         boxShadow: 1,
         backgroundColor: "background.paper",
@@ -26,7 +23,7 @@ export default function Footer() {
             textAlign: "center",
           }}
         >
-          <Typography>© Toothy 2025</Typography>
+          <Typography sx={{ paddingTop: "20px" }}>© Toothy 2025</Typography>
         </Box>
       </Stack>
     </Box>

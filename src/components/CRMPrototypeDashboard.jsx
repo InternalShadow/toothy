@@ -16,6 +16,7 @@ export default function CRMPrototypeDashboard() {
   const caseData = useMemo(() => generateRandomCases(10), []);
 
   const stats = useMemo(() => {
+    const newCases = caseData.filter((c) => c.cat === "New Case").length;
     const total = caseData.length;
     const completed = caseData.filter((c) => c.stat === "Completed").length;
     const pending = caseData.filter((c) => c.stat === "Pending").length;
@@ -25,6 +26,7 @@ export default function CRMPrototypeDashboard() {
 
     return {
       total,
+      newCases,
       completed,
       pending,
       inProgress,

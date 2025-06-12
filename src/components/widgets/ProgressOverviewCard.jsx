@@ -1,14 +1,26 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-const progressData = [
-  { label: "New Cases", value: 50, color: "#4f6bed" }, // Indigo blue (matches sidebar)
-  { label: "Pending", value: 30, color: "#ffa726" }, // Soft amber/orange
-  { label: "In Progress", value: 20, color: "#42a5f5" }, // Light blue
-  { label: "Completed", value: 10, color: "#66bb6a" }, // Soft green
-];
+export default function ProgressOverviewCard({ stats }) {
+  const progressData = [
+    {
+      label: "New Cases",
+      value: stats.newCases,
+      color: "#4f6bed",
+    },
+    { label: "Pending", value: stats.pending, color: "#ffa726" },
+    {
+      label: "In Progress",
+      value: stats.inProgress,
+      color: "#42a5f5",
+    },
+    {
+      label: "Completed",
+      value: stats.completed,
+      color: "#66bb6a",
+    },
+  ];
 
-export default function ProgressOverviewCard() {
   return (
     <Box
       sx={{
@@ -39,7 +51,8 @@ export default function ProgressOverviewCard() {
           <Box
             sx={{
               position: "relative",
-              width: 200,
+              minWidth: "10vw",
+              maxWidth: "15vw",
               height: 24,
               backgroundColor: "white",
               borderRadius: 1,
@@ -53,7 +66,7 @@ export default function ProgressOverviewCard() {
                 left: 0,
                 top: 0,
                 bottom: 0,
-                width: `${value}%`,
+                width: `${value * 10}%`,
                 backgroundColor: color,
               }}
             />
@@ -69,7 +82,7 @@ export default function ProgressOverviewCard() {
                 width: 40,
               }}
             >
-              {value}%
+              {value * 10}%
             </Typography>
             <Typography
               sx={{ color: "black", display: "inline-block", fontWeight: 500 }}
