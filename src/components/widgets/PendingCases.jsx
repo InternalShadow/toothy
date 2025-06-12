@@ -1,64 +1,83 @@
 import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 
-export default function PendingCases() {
-  // Bar heights as percentages for the mini bar chart
-  const barHeights = [20, 35, 45, 60, 75, 90, 90, 35, 20, 10, 5, 2];
+export default function PendingCases({ cases }) {
+  const pendingCount = cases.length;
 
   return (
-    <Paper
-      elevation={3}
+    <Box
       sx={{
-        p: 2,
+        backgroundColor: "background.paper",
         borderRadius: 2,
-        maxHeight: 200,
+        p: 3,
+        boxShadow: 3,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 200,
       }}
     >
       <Box
-        display='flex'
-        justifyContent='space-between'
-        alignItems='center'
-        mb={2}
+        sx={{
+          position: "relative",
+          display: "inline-flex",
+          mb: 2,
+        }}
       >
-        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
-          Pending Action
-        </Typography>
-        <Box display='flex' alignItems='center' gap={1}>
-          <svg
-            width='20'
-            height='20'
-            viewBox='0 0 20 20'
-            style={{ verticalAlign: "middle" }}
+        <CircularProgress
+          variant='determinate'
+          value={pendingCount * 10}
+          size={80}
+          thickness={4}
+          sx={{ color: "#2196f3", zIndex: 1 }}
+        />
+        <CircularProgress
+          variant='determinate'
+          value={100}
+          size={80}
+          thickness={4}
+          sx={{
+            color: "lightgray",
+            position: "absolute",
+            left: 0,
+          }}
+        />
+        <Box
+          sx={{
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            position: "absolute",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            variant='caption'
+            component='div'
+            sx={{ fontWeight: 700, fontSize: 20 }}
+            color={pendingCount > 0 ? "#2196f3" : "#000"}
           >
-            <circle cx='10' cy='10' r='10' fill='#111' />
-            <path
-              d='M10 6v8M10 6l-3 3M10 6l3 3'
-              stroke='#fff'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          </svg>
-          <Typography sx={{ fontWeight: 700, fontSize: 18 }}>Delay</Typography>
+            {pendingCount * 10}%
+          </Typography>
         </Box>
       </Box>
-      <Typography sx={{ fontWeight: 700, fontSize: 32, mb: 3 }}>
-        2 Cases
+      <Typography
+        sx={{
+          fontWeight: 700,
+          fontSize: 22,
+          color: "black",
+          mb: 1,
+        }}
+      >
+        Pending Cases
       </Typography>
-      <Box display='flex' alignItems='flex-end' gap={1} mt={2}>
-        {barHeights.map((h, i) => (
-          <Box
-            key={i}
-            sx={{
-              width: 18,
-              height: `${h}px`,
-              backgroundColor: "#ccc",
-              borderRadius: 1,
-              transition: "height 0.3s",
-            }}
-          />
-        ))}
-      </Box>
-    </Paper>
+      <Typography sx={{ color: "#222", fontSize: 16 }}>
+        Awaiting Review
+      </Typography>
+    </Box>
   );
 }

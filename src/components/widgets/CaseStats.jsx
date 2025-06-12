@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Paper, Typography } from "@mui/material";
 
-export default function CaseStats() {
+export default function CaseStats({ stats }) {
+  const [activeCases, setActiveCases] = useState(0);
+  const [dueSoon, setDueSoon] = useState(0);
+  const [inReview, setInReview] = useState(0);
+
+  useEffect(() => {
+    setActiveCases(stats.inProgress);
+    setInReview(stats.inReview);
+  }, [stats]);
+
   return (
     <Paper
       sx={{
@@ -17,7 +26,7 @@ export default function CaseStats() {
         Case Overview
       </Typography>
       <Typography sx={{ fontWeight: 700, fontSize: 32, mb: 3 }}>
-        5 Active Cases
+        {activeCases} Active Cases
       </Typography>
       <Box display='flex' justifyContent='space-between' mt={1}>
         <Box>
@@ -33,7 +42,7 @@ export default function CaseStats() {
             ● In Review
           </Typography>
           <Typography sx={{ fontWeight: 700, fontSize: 18, color: "black" }}>
-            3 Cases
+            {inReview} Cases
           </Typography>
         </Box>
       </Box>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, Grid } from "@mui/material";
 import DashBoardGrid from "./layout/DashBoardGrid";
 import CaseStats from "./widgets/CaseStats";
@@ -10,8 +10,30 @@ import ProgressOverviewCard from "./widgets/ProgressOverviewCard";
 import CaseList from "./widgets/CaseList";
 import ActiveCasesCard from "./widgets/ActiveCasesCard";
 import Footer from "./widgets/Footer";
+import { generateRandomCases } from "./data/CaseData";
 
 export default function CRMPrototypeDashboard() {
+  const caseData = useMemo(() => generateRandomCases(10), []);
+
+  const stats = useMemo(() => {
+    const total = caseData.length;
+    const completed = caseData.filter((c) => c.stat === "Completed").length;
+    const pending = caseData.filter((c) => c.stat === "Pending").length;
+    const inReview = caseData.filter((c) => c.stat === "In Review").length;
+    const uploaded = caseData.filter((c) => c.stat === "Uploaded").length;
+    const inProgress = caseData.filter((c) => c.stat === "In Progress").length;
+
+    return {
+      total,
+      completed,
+      pending,
+      inProgress,
+      inReview,
+      uploaded,
+      completionPercentage: Math.round((completed / total) * 100),
+    };
+  }, [caseData]);
+
   return (
     <Box
       sx={{
@@ -40,19 +62,21 @@ export default function CRMPrototypeDashboard() {
               <Box flexGrow={1}>
                 <Grid container spacing={3}>
                   <Grid size={4} item xs={12} sm={6} md={4}>
-                    <CaseStats />
+                    <CaseStats stats={stats} />
                   </Grid>
                   <Grid size={4} item xs={12} sm={6} md={4}>
-                    <PendingCases />
+                    <PendingCases
+                      cases={caseData.filter((c) => c.stat === "Pending")}
+                    />
                   </Grid>
                   <Grid size={4} item xs={12} sm={6} md={4}>
-                    <ActiveCasesCard />
+                    <ActiveCasesCard stats={stats} />
                   </Grid>
                   <Grid size={8} item xs={12} sm={12} md={12}>
-                    <Chart />
+                    <Chart data={caseData} />
                   </Grid>
                   <Grid size={4} item xs={12} sm={6} md={4}>
-                    <ProgressOverviewCard />
+                    <ProgressOverviewCard stats={stats} />
                   </Grid>
                 </Grid>
               </Box>
@@ -62,7 +86,7 @@ export default function CRMPrototypeDashboard() {
                   mt: { xs: 4, md: 0 },
                 }}
               >
-                <CaseList />
+                <CaseList cases={caseData} />
               </Box>
             </Box>
           </DashBoardGrid>

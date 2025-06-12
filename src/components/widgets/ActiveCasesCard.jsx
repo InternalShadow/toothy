@@ -1,31 +1,45 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
-import ResizableDraggableWidget from "../layout/ResizeableDraggableWidget";
 
-export default function ActiveCasesCard() {
-  const percent = 75;
-  const total = 20;
-  const completed = 15;
+const STATES = [
+  { key: "total", label: "Total Cases" },
+  { key: "completed", label: "Completed" },
+  { key: "pending", label: "Pending" },
+  { key: "inProgress", label: "In Progress" },
+  { key: "inReview", label: "In Review" },
+  { key: "uploaded", label: "Uploaded" },
+];
+
+export default function ActiveCasesCard({ stats }) {
+  const [currentStateIndex, setCurrentStateIndex] = useState(0);
+  const currentState = STATES[currentStateIndex];
+
+  const handlePrevious = () => {
+    setCurrentStateIndex((prev) => (prev === 0 ? STATES.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentStateIndex((prev) => (prev === STATES.length - 1 ? 0 : prev + 1));
+  };
+
+  const getPercentage = () => {
+    const value = stats[currentState.key];
+    return Math.round((value / stats.total) * 100);
+  };
 
   return (
-    // <ResizableDraggableWidget
-    //   defaultPosition={{ x: 100, y: 100 }}
-    //   defaultSize={{ width: 300, height: 250 }}
-    // >
     <Box
       sx={{
         backgroundColor: "background.paper",
-        // border: '2px solid #2196f3',
         borderRadius: 2,
         p: 3,
-
         boxSizing: "border-box",
-        // height: 200,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         maxHeight: "235px",
         boxShadow: 3,
+        minWidth: "20vw",
       }}
     >
       <Box
@@ -40,17 +54,20 @@ export default function ActiveCasesCard() {
               fontWeight: 700,
               fontSize: 22,
               color: "black",
-              // textWrap: "wrap",
             }}
           >
-            Active Cases
+            {currentState.label}
           </Typography>
           <Typography sx={{ color: "#222", fontSize: 16 }}>
-            In Review
+            {getPercentage()}% of Total
           </Typography>
         </Box>
         <Box display='flex' alignItems='center' gap={1}>
-          <IconButton size='small' sx={{ color: "#222" }}>
+          <IconButton
+            size='small'
+            sx={{ color: "#222" }}
+            onClick={handlePrevious}
+          >
             <svg width='20' height='20' viewBox='0 0 20 20'>
               <path
                 d='M13 5l-5 5 5 5'
@@ -62,7 +79,7 @@ export default function ActiveCasesCard() {
               />
             </svg>
           </IconButton>
-          <IconButton size='small' sx={{ color: "#222" }}>
+          <IconButton size='small' sx={{ color: "#222" }} onClick={handleNext}>
             <svg width='20' height='20' viewBox='0 0 20 20'>
               <path
                 d='M7 5l5 5-5 5'
@@ -79,8 +96,6 @@ export default function ActiveCasesCard() {
       <Box display='flex' alignItems='center' mt={2}>
         <Box
           sx={{
-            // width: 56,
-            // height: 56,
             backgroundColor: "#fff",
             borderRadius: 2,
             display: "flex",
@@ -109,12 +124,10 @@ export default function ActiveCasesCard() {
               textWrap: "wrap",
             }}
           >
-            {percent}% Completion
+            {getPercentage()}% {currentState.label}
           </Typography>
           <Box
             sx={{
-              // width: '100%',
-              // height: 10,
               backgroundColor: "#fff",
               borderRadius: 1,
               overflow: "hidden",
@@ -123,8 +136,8 @@ export default function ActiveCasesCard() {
           >
             <Box
               sx={{
-                // width: `${percent}%`,
-                // height: '100%',
+                width: `${getPercentage()}%`,
+                height: "10px",
                 backgroundColor: "#111",
                 borderRadius: 1,
                 transition: "width 0.3s",
@@ -132,11 +145,10 @@ export default function ActiveCasesCard() {
             />
           </Box>
           <Typography sx={{ color: "#222", fontSize: 16 }}>
-            {completed} out of {total} cases
+            {stats[currentState.key]} out of {stats.total} cases
           </Typography>
         </Box>
       </Box>
     </Box>
-    // </ResizableDraggableWidget>
   );
 }
