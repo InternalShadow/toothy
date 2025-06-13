@@ -108,8 +108,10 @@ export default function CaseList({ cases }) {
         borderRadius: 2,
         boxShadow: 3,
         backgroundColor: "white",
-        maxHeight: "68vh",
         overflowY: "scroll",
+        minWidth: "20vw",
+        minHeight: "30vh",
+        maxHeight: "50vh",
       }}
     >
       <Box
@@ -138,7 +140,8 @@ export default function CaseList({ cases }) {
         gap={3}
         mb={3}
         overflow='scroll'
-        maxWidth='20vw'
+        maxWidth='25vw'
+        borderBottom='1px solid #e0e0e0'
         pb={2}
       >
         {filters.map((f) => (
@@ -147,7 +150,7 @@ export default function CaseList({ cases }) {
             onClick={() => setActiveFilter(f.label)}
             sx={{
               fontWeight: 700,
-              fontSize: 16,
+              fontSize: 14,
               borderBottom:
                 activeFilter === f.label ? "3px solid #000" : "none",
               color: activeFilter === f.label ? "#000" : "#888",

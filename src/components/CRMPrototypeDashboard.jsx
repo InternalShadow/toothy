@@ -44,6 +44,7 @@ export default function CRMPrototypeDashboard() {
     "activeCasesCard",
     "chart",
     "progressOverviewCard",
+    "caseList",
   ]);
 
   const widgetMap = {
@@ -54,6 +55,20 @@ export default function CRMPrototypeDashboard() {
     activeCasesCard: <ActiveCasesCard stats={stats} />,
     chart: <Chart data={caseData} />,
     progressOverviewCard: <ProgressOverviewCard stats={stats} />,
+    caseList: <CaseList cases={caseData} />,
+  };
+
+  const [dragOverId, setDragOverId] = useState(null);
+
+  const resetDashboard = () => {
+    setWidgets([
+      "caseStats",
+      "pendingCases",
+      "activeCasesCard",
+      "chart",
+      "progressOverviewCard",
+      "caseList",
+    ]);
   };
 
   return (
@@ -65,7 +80,13 @@ export default function CRMPrototypeDashboard() {
         backgroundColor: "#f5f5f5",
       }}
     >
-      <Box sx={{ display: { xs: "none", md: "block" }, width: 240 }}>
+      <Box
+        sx={{
+          display: { xs: "none", md: "block", lg: "flex", xl: "flex" },
+          minWidth: 0,
+          backgroundColor: "#f5f5f5",
+        }}
+      >
         <Sidebar />
       </Box>
       <Box
@@ -85,41 +106,34 @@ export default function CRMPrototypeDashboard() {
                 <Box flexGrow={1}>
                   <Grid container spacing={3}>
                     {widgets.map((widget) => (
-                      <InteractiveWidget id={widget} key={widget}>
-                        <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 3 }}>
+                      <Grid
+                        key={widget}
+                        size={{
+                          xs: 12,
+                          sm: 6,
+                          md:
+                            widget === "caseStats"
+                              ? 4
+                              : widget === "caseList"
+                              ? 8
+                              : widget === "chart"
+                              ? 12
+                              : 3,
+                          lg: widget === "chart" ? 6 : 3,
+                          xl: widget === "chart" ? 6 : 3,
+                        }}
+                      >
+                        <InteractiveWidget
+                          id={widget}
+                          key={widget}
+                          onDragEnter={(id) => setDragOverId(id)}
+                          onDragLeave={() => setDragOverId(null)}
+                        >
                           {widgetMap[widget]}
-                        </Grid>
-                      </InteractiveWidget>
+                        </InteractiveWidget>
+                      </Grid>
                     ))}
-
-                    {/* <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <CaseStats stats={stats} />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <PendingCases
-                        cases={caseData.filter((c) => c.stat === "Pending")}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <ActiveCasesCard stats={stats} />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 12, md: 8 }}>
-                      <Chart data={caseData} />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <ProgressOverviewCard stats={stats} />
-                    </Grid> */}
                   </Grid>
-                </Box>
-
-                <Box
-                  sx={{
-                    width: { xs: "100%", md: "50%" },
-                    mt: { xs: 4, md: 0 },
-                  }}
-                >
-                  <CaseList cases={caseData} />
                 </Box>
               </Box>
             </DashBoardGrid>

@@ -4,7 +4,13 @@ import {
   dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 
-export default function InteractiveWidget({ id, children }) {
+export default function InteractiveWidget({
+  id,
+  dragOverId,
+  children,
+  onDragEnter,
+  onDragLeave,
+}) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -20,6 +26,8 @@ export default function InteractiveWidget({ id, children }) {
     const cleanupDropTarget = dropTargetForElements({
       element: ref.current,
       getData: () => ({ type: "widget", id }),
+      onDragEnter: () => onDragEnter?.(id),
+      onDragLeave: () => onDragLeave?.(id),
       onDrop: ({ source }) => {
         console.log(`Dropped ${source.data.id} onto ${id}`);
       },
@@ -29,7 +37,19 @@ export default function InteractiveWidget({ id, children }) {
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [id]);
+  }, [id, onDragEnter, onDragLeave]);
 
-  return <div ref={ref}>{children}</div>;
+  return (
+    <div
+      ref={ref}
+      style={{
+        border:
+          dragOverId === id ? "2px dashed #2196f3" : "2px dashed transparent",
+        transition: "border 0.2s ease-in-out",
+        borderRadius: "4px",
+      }}
+    >
+      {children}
+    </div>
+  );
 }
