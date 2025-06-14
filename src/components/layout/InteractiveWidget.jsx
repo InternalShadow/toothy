@@ -10,6 +10,8 @@ export default function InteractiveWidget({
   children,
   onDragEnter,
   onDragLeave,
+  onDropTarget,
+  onDragStart,
 }) {
   const ref = useRef(null);
 
@@ -20,6 +22,19 @@ export default function InteractiveWidget({
     const cleanupDraggable = draggable({
       element: ref.current,
       getInitialData: () => ({ type: "widget", id }),
+      onDragStart: () => {
+        // Temporarily disable pointer events so that the underlying drop
+        // zone (or other widgets) can properly receive the drag over / drop
+        // callbacks. This enables free-form dropping inside the dashboard.
+        if (ref.current) {
+          ref.current.style.pointerEvents = "none";
+        }
+
+        onDragStart?.(id);
+      },
+      onDrop: () => {
+        if (ref.current) ref.current.style.pointerEvents = "auto";
+      },
     });
 
     // ✅ register drop target
@@ -30,6 +45,7 @@ export default function InteractiveWidget({
       onDragLeave: () => onDragLeave?.(id),
       onDrop: ({ source }) => {
         console.log(`Dropped ${source.data.id} onto ${id}`);
+        onDropTarget?.(id);
       },
     });
 
@@ -37,7 +53,7 @@ export default function InteractiveWidget({
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [id, onDragEnter, onDragLeave]);
+  }, [id, onDragEnter, onDragLeave, onDropTarget, onDragStart]);
 
   return (
     <div

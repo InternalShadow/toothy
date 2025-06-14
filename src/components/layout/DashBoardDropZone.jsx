@@ -1,9 +1,21 @@
 // layout/DashboardDropZone.jsx
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 
-export default function DashboardDropZone({ children, onReorderWidgets }) {
+const DashboardDropZone = forwardRef(function DashboardDropZone(
+  { children, onReorderWidgets, onDropPosition },
+  refForward
+) {
   const ref = useRef(null);
+  // allow outer components to access underlying element
+  useImperativeHandle(refForward, () => ref.current);
+
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -14,9 +26,32 @@ export default function DashboardDropZone({ children, onReorderWidgets }) {
       getData: () => ({ type: "dashboard-zone" }),
       onDragEnter: () => setIsDragging(true),
       onDragLeave: () => setIsDragging(false),
-      onDrop: ({ source }) => {
+      onDrop: ({ source, location }) => {
         if (!source?.data?.id) return;
-        onReorderWidgets((prev) => {
+
+        // Calculate coordinates relative to the drop zone for free placement.
+        const rect = ref.current.getBoundingClientRect();
+        const { clientX: pointerX, clientY: pointerY } = location.current.input;
+
+        // Size of dragged element to center under cursor
+        const draggedRect = source.element?.getBoundingClientRect();
+        const halfW = draggedRect ? draggedRect.width / 2 : 0;
+        const halfH = draggedRect ? draggedRect.height / 2 : 0;
+
+        let x = pointerX - rect.left - halfW;
+        let y = pointerY - rect.top - halfH;
+
+        // Clamp to stay within drop zone bounds
+        const maxX = rect.width - (draggedRect?.width ?? 0);
+        const maxY = rect.height - (draggedRect?.height ?? 0);
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
+
+        onDropPosition?.(source.data.id, { x, y });
+
+        // Maintain ordering by moving the dragged widget to the end unless the
+        // consumer overrides this behavior in the onDropPosition handler.
+        onReorderWidgets?.((prev) => {
           const newOrder = prev.filter((widget) => widget !== source.data.id);
           newOrder.push(source.data.id);
           return newOrder;
@@ -25,7 +60,7 @@ export default function DashboardDropZone({ children, onReorderWidgets }) {
     });
 
     return () => cleanup();
-  }, [onReorderWidgets]);
+  }, [onReorderWidgets, onDropPosition]);
 
   return (
     <div
@@ -41,4 +76,6 @@ export default function DashboardDropZone({ children, onReorderWidgets }) {
       {children}
     </div>
   );
-}
+});
+
+export default DashboardDropZone;
