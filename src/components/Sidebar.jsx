@@ -24,14 +24,17 @@ export default function Sidebar() {
       <List
         sx={{
           width: "240",
+          height: "100%",
           bgcolor: "background.paper",
-          height: "100vh",
-          padding: "10px 0",
+          padding: "0 0.3vw 0 0",
           boxShadow: "0 0 10px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
         {menuItems.map((item) => (
-          <ListItemButton key={item.text}>
+          <ListItemButton
+            key={item.text}
+            sx={{ px: 2, py: 1, alignItems: "center" }}
+          >
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} sx={{ color: "primary.main" }} />
           </ListItemButton>

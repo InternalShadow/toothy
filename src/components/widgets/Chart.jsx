@@ -1,8 +1,8 @@
 import React from "react";
-import { Paper, Typography } from "@mui/material";
+import { Paper, Typography, Box } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 
-export default function Chart() {
+export default function Chart({ chartData, isFreeform = false }) {
   const months = [
     "Jan",
     "Feb",
@@ -18,11 +18,6 @@ export default function Chart() {
     "Dec",
   ];
 
-  // Separate data series for each metric
-  const scans = [12, 15, 18, 14, 16, 20, 22, 19, 17, 21, 23, 25];
-  const molds = [8, 10, 12, 11, 13, 15, 17, 16, 14, 18, 19, 21];
-  const impressions = [5, 7, 9, 8, 10, 12, 14, 13, 11, 15, 16, 18];
-
   return (
     <Paper
       sx={{
@@ -31,6 +26,12 @@ export default function Chart() {
         backgroundColor: "#111",
         boxShadow: "none",
         color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minHeight: isFreeform ? "unset" : "24vh",
+        minWidth: isFreeform ? "unset" : "25vw",
       }}
     >
       <Typography
@@ -39,7 +40,8 @@ export default function Chart() {
         sx={{
           color: "#fff",
           fontWeight: 700,
-          border: "2px solid #2196f3",
+          // border: "1px solid #2196f3",
+
           display: "inline-block",
           px: 1.5,
           borderRadius: 1,
@@ -48,62 +50,62 @@ export default function Chart() {
       >
         Actions Needed
       </Typography>
-      <BarChart
-        series={[
-          {
-            data: scans,
-            label: "Scans",
-            color: "cyan",
-          },
-          {
-            data: molds,
-            label: "Molds",
-            color: "white",
-          },
-          {
-            data: impressions,
-            label: "Impressions",
-            color: "orange",
-          },
-        ]}
-        xAxis={[
-          {
-            data: months,
-            scaleType: "band",
-            label: "Month",
-            labelStyle: { fill: "#fff", fontWeight: 500 },
-
-            tickLabelStyle: { fill: "#fff", fontWeight: 500 },
-          },
-        ]}
-        yAxis={[
-          {
-            label: "Cases",
-            tickLabelStyle: { fill: "#fff", fontWeight: 500 },
-            labelStyle: { fill: "#fff", fontWeight: 700 },
-          },
-        ]}
-        height={300}
-        sx={{
-          backgroundColor: "#111",
-          ".MuiChartsAxis-label, .MuiChartsAxis-tickLabel": {
-            fill: "#fff",
-          },
-          ".MuiChartsLegend-root": {
-            color: "#fff",
-            fontWeight: 500,
-            fontSize: 16,
-          },
-          ".MuiChartsGrid-line": {
-            stroke: "#444",
-            strokeWidth: 1,
-          },
-        }}
-        legend={{
-          position: { vertical: "top", horizontal: "middle" },
-          labelStyle: { color: "#fff", fontWeight: 500 },
-        }}
-      />
+      <Box sx={{ flex: 1, minHeight: 0, width: "100%" }}>
+        <BarChart
+          series={[
+            {
+              data: chartData.scans,
+              label: "Scans",
+              color: "cyan",
+            },
+            {
+              data: chartData.molds,
+              label: "Molds",
+              color: "white",
+            },
+            {
+              data: chartData.impressions,
+              label: "Impressions",
+              color: "orange",
+            },
+          ]}
+          xAxis={[
+            {
+              data: months,
+              scaleType: "band",
+              label: "Month",
+              labelStyle: { fill: "#fff", fontWeight: 500 },
+              tickLabelStyle: { fill: "#fff", fontWeight: 500 },
+            },
+          ]}
+          yAxis={[
+            {
+              label: "Cases",
+              tickLabelStyle: { fill: "#fff", fontWeight: 500 },
+              labelStyle: { fill: "#fff", fontWeight: 700 },
+            },
+          ]}
+          sx={{
+            backgroundColor: "#111",
+            ".MuiChartsAxis-label, .MuiChartsAxis-tickLabel": {
+              fill: "#fff",
+            },
+            ".MuiChartsLegend-root": {
+              color: "#fff",
+              fontWeight: 500,
+              fontSize: 16,
+            },
+            ".MuiChartsGrid-line": {
+              stroke: "#444",
+              strokeWidth: 1,
+            },
+          }}
+          legend={{
+            position: { vertical: "top", horizontal: "middle" },
+            labelStyle: { color: "#fff", fontWeight: 500 },
+          }}
+        />
+      </Box>
     </Paper>
   );
 }

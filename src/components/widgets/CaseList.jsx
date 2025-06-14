@@ -77,7 +77,7 @@ const getCaseIcon = (category) => {
   }
 };
 
-export default function CaseList({ cases }) {
+export default function CaseList({ cases, isFreeform = false }) {
   const [activeFilter, setActiveFilter] = useState("New");
 
   const filteredCases = cases.filter((c) => {
@@ -108,8 +108,14 @@ export default function CaseList({ cases }) {
         borderRadius: 2,
         boxShadow: 3,
         backgroundColor: "white",
-        maxHeight: "68vh",
-        overflowY: "scroll",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minWidth: isFreeform ? "unset" : "20vw",
+        minHeight: isFreeform ? "unset" : "30vh",
+        maxHeight: isFreeform ? "unset" : "50vh",
       }}
     >
       <Box
@@ -138,7 +144,8 @@ export default function CaseList({ cases }) {
         gap={3}
         mb={3}
         overflow='scroll'
-        maxWidth='20vw'
+        maxWidth='25vw'
+        borderBottom='1px solid #e0e0e0'
         pb={2}
       >
         {filters.map((f) => (
@@ -147,7 +154,7 @@ export default function CaseList({ cases }) {
             onClick={() => setActiveFilter(f.label)}
             sx={{
               fontWeight: 700,
-              fontSize: 16,
+              fontSize: 14,
               borderBottom:
                 activeFilter === f.label ? "3px solid #000" : "none",
               color: activeFilter === f.label ? "#000" : "#888",
@@ -159,7 +166,7 @@ export default function CaseList({ cases }) {
           </Typography>
         ))}
       </Box>
-      <Box>
+      <Box sx={{ overflowY: "auto", flex: 1 }}>
         {filteredCases.map((c, i) => (
           <React.Fragment key={c.id}>
             <Paper

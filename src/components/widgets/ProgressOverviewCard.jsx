@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-export default function ProgressOverviewCard({ stats }) {
+export default function ProgressOverviewCard({ stats, isFreeform = false }) {
   const progressData = [
     {
       label: "New Cases",
@@ -27,9 +27,13 @@ export default function ProgressOverviewCard({ stats }) {
         backgroundColor: "#fff",
         borderRadius: 2,
         p: 3,
-        width: "100%",
         boxSizing: "border-box",
         boxShadow: 3,
+        display: "flex",
+        flexDirection: "column",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minWidth: isFreeform ? "unset" : "20vw",
       }}
     >
       <Typography variant='h6' sx={{ fontWeight: 700, mb: 3, color: "black" }}>
@@ -42,18 +46,17 @@ export default function ProgressOverviewCard({ stats }) {
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start",
-            mb: 2,
             gap: 2,
+            mb: 2,
           }}
         >
           {/* Progress Bar */}
           <Box
             sx={{
               position: "relative",
-              minWidth: "10vw",
-              maxWidth: "15vw",
               height: 24,
+              flex: 1,
+              minWidth: 0,
               backgroundColor: "white",
               borderRadius: 1,
               boxShadow: "0 1px 2px rgba(0,0,0,1)",
@@ -73,19 +76,29 @@ export default function ProgressOverviewCard({ stats }) {
           </Box>
 
           {/* Percentage and Label */}
-          <Box sx={{ minWidth: 100 }}>
+          <Box
+            sx={{
+              width: 120,
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <Typography
               sx={{
                 fontWeight: 700,
                 color: "black",
-                display: "inline-block",
-                width: 40,
+                width: 45,
+                flexShrink: 0,
               }}
             >
               {value * 10}%
             </Typography>
             <Typography
-              sx={{ color: "black", display: "inline-block", fontWeight: 500 }}
+              sx={{
+                color: "black",
+                fontWeight: 500,
+              }}
             >
               {label}
             </Typography>
