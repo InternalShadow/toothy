@@ -27,6 +27,7 @@ export default function ProgressOverviewCard({ stats }) {
         backgroundColor: "#fff",
         borderRadius: 2,
         p: 3,
+
         minWidth: "20vw",
         boxSizing: "border-box",
         boxShadow: 3,

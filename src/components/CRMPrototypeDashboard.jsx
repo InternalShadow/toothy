@@ -47,6 +47,7 @@ export default function CRMPrototypeDashboard() {
   // Load persisted freeform layout (order & positions)
   let persistedOrder = null;
   let persistedPositions = null;
+  let persistedSizes = null;
   try {
     const raw =
       typeof window !== "undefined" &&
@@ -55,6 +56,7 @@ export default function CRMPrototypeDashboard() {
       const parsed = JSON.parse(raw);
       persistedOrder = parsed?.order;
       persistedPositions = parsed?.positions;
+      persistedSizes = parsed?.sizes;
     }
   } catch (_) {
     // ignore
@@ -102,6 +104,17 @@ export default function CRMPrototypeDashboard() {
     return initial;
   });
 
+  const [widgetSizes, setWidgetSizes] = useState(() => {
+    if (persistedSizes) return persistedSizes;
+    const initial = {};
+    (persistedOrder ?? defaultOrder).forEach((id) => {
+      if (id === "chart") initial[id] = { width: 600, height: 350 };
+      else if (id === "caseList") initial[id] = { width: 450, height: 400 };
+      else initial[id] = { width: 320, height: 280 };
+    });
+    return initial;
+  });
+
   // Keep positions state in sync when new widgets are introduced
   useEffect(() => {
     setWidgetPositions((prev) => {
@@ -115,12 +128,88 @@ export default function CRMPrototypeDashboard() {
     });
   }, [widgets]);
 
-  const handleDropPosition = (id, coords) => {
+  const handleLayoutChange = ({ id, position, size }) => {
     hasUserMovedWidget.current = true;
-    setWidgetPositions((prev) => ({
-      ...prev,
-      [id]: coords,
-    }));
+
+    // Create mutable copies of the current state
+    const newPositions = { ...widgetPositions };
+    const newSizes = { ...widgetSizes };
+
+    const dropZoneBounds = dropZoneRef.current?.getBoundingClientRect();
+
+    // 1. Apply and clamp the incoming change (either position or size)
+    if (size) {
+      let newWidth = Math.max(200, size.width);
+      let newHeight = Math.max(150, size.height);
+
+      if (dropZoneBounds) {
+        const currentPos = newPositions[id];
+        newWidth = Math.min(newWidth, dropZoneBounds.width - currentPos.x);
+        newHeight = Math.min(newHeight, dropZoneBounds.height - currentPos.y);
+      }
+      newSizes[id] = { width: newWidth, height: newHeight };
+    }
+
+    if (position) {
+      let newX = position.x;
+      let newY = position.y;
+
+      if (dropZoneBounds) {
+        const currentSize = newSizes[id];
+        newX = Math.max(
+          0,
+          Math.min(newX, dropZoneBounds.width - currentSize.width)
+        );
+        newY = Math.max(
+          0,
+          Math.min(newY, dropZoneBounds.height - currentSize.height)
+        );
+      }
+      newPositions[id] = { x: newX, y: newY };
+    }
+
+    // 2. Resolve collisions caused by the change
+    const mainWidgetRect = { ...newPositions[id], ...newSizes[id] };
+    const gap = 15;
+
+    widgets.forEach((otherId) => {
+      if (id === otherId) return;
+
+      const otherWidgetRect = {
+        ...newPositions[otherId],
+        ...newSizes[otherId],
+      };
+
+      const isOverlapping =
+        mainWidgetRect.x < otherWidgetRect.x + otherWidgetRect.width &&
+        mainWidgetRect.x + mainWidgetRect.width > otherWidgetRect.x &&
+        mainWidgetRect.y < otherWidgetRect.y + otherWidgetRect.height &&
+        mainWidgetRect.y + mainWidgetRect.height > otherWidgetRect.y;
+
+      if (isOverlapping) {
+        // Push the other widget down
+        let pushedY = mainWidgetRect.y + mainWidgetRect.height + gap;
+        if (dropZoneBounds) {
+          pushedY = Math.min(
+            pushedY,
+            dropZoneBounds.height - newSizes[otherId].height
+          );
+        }
+        newPositions[otherId].y = pushedY;
+      }
+    });
+
+    // 3. Commit the new state
+    setWidgetPositions(newPositions);
+    setWidgetSizes(newSizes);
+  };
+
+  const handleDropPosition = (id, coords) => {
+    handleLayoutChange({ id, position: coords });
+  };
+
+  const handleResize = (id, newSize) => {
+    handleLayoutChange({ id, size: newSize });
   };
 
   // refs to collect DOM nodes in grid layout
@@ -229,14 +318,18 @@ export default function CRMPrototypeDashboard() {
       if (!hasUserMovedWidget.current) return;
       localStorage.setItem(
         "crmFreeformLayout",
-        JSON.stringify({ order: widgets, positions: widgetPositions })
+        JSON.stringify({
+          order: widgets,
+          positions: widgetPositions,
+          sizes: widgetSizes,
+        })
       );
     };
 
     if (layoutMode === "list") save();
     window.addEventListener("beforeunload", save);
     return () => window.removeEventListener("beforeunload", save);
-  }, [widgets, widgetPositions, layoutMode]);
+  }, [widgets, widgetPositions, widgetSizes, layoutMode]);
 
   return (
     <Box
@@ -282,6 +375,7 @@ export default function CRMPrototypeDashboard() {
                   const payload = {
                     order: widgets,
                     positions: widgetPositions,
+                    sizes: widgetSizes,
                   };
                   localStorage.setItem(
                     "crmFreeformLayout",
@@ -371,32 +465,21 @@ export default function CRMPrototypeDashboard() {
                   padding: 2,
                 }}
               >
-                {widgets.map((widget, i) => (
-                  <Box
-                    key={`k-${widget}-${i}`}
-                    sx={{
-                      position: "absolute",
-                      left: `${widgetPositions[widget]?.x ?? i * 100}px`,
-                      top: `${widgetPositions[widget]?.y ?? i * 100}px`,
-                      // transform: "left 0.2s ease, top 0.2s ease",
-                      // width: "100vw",
-                      // height: "100vh",
-                    }}
+                {widgets.map((widget) => (
+                  <InteractiveWidget
+                    id={widget}
+                    key={widget}
+                    position={widgetPositions[widget]}
+                    size={widgetSizes[widget]}
+                    onDragStart={(id) => setDraggedId(id)}
+                    onDragEnter={(id) => setDragOverId(id)}
+                    onDragLeave={() => setDragOverId(null)}
+                    onDropTarget={(destId) => reorderWidgets(draggedId, destId)}
+                    dragOverId={dragOverId}
+                    onResize={handleResize}
                   >
-                    <InteractiveWidget
-                      id={widget}
-                      key={widget}
-                      onDragStart={(id) => setDraggedId(id)}
-                      onDragEnter={(id) => setDragOverId(id)}
-                      onDragLeave={() => setDragOverId(null)}
-                      onDropTarget={(destId) =>
-                        reorderWidgets(draggedId, destId)
-                      }
-                      dragOverId={dragOverId}
-                    >
-                      {widgetMap[widget]}
-                    </InteractiveWidget>
-                  </Box>
+                    {widgetMap[widget]}
+                  </InteractiveWidget>
                 ))}
               </Box>
             </DashboardDropZone>
