@@ -40,7 +40,6 @@ export default function Chart({ chartData, isFreeform = false }) {
         sx={{
           color: "#fff",
           fontWeight: 700,
-          // border: "1px solid #2196f3",
 
           display: "inline-block",
           px: 1.5,

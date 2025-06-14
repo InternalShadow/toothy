@@ -376,7 +376,13 @@ export default function CRMPrototypeDashboard() {
       >
         <Header />
         <Box sx={{ flexGrow: 1 }}>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+          <Box
+            sx={{
+              display: { xs: "none", sm: "none", md: "flex" },
+              justifyContent: "flex-end",
+              p: 2,
+            }}
+          >
             <Button variant='contained' color='primary' onClick={toggleLayout}>
               switch to {layoutMode === "grid" ? "Freeform" : "Grid View"}{" "}
               Layout
@@ -405,24 +411,30 @@ export default function CRMPrototypeDashboard() {
           </Box>
           {layoutMode === "grid" ? (
             <DashBoardGrid>
-              <Box display='flex' width='100%' gap={2}>
+              <Box
+                display='flex'
+                width='100%'
+                gap={2}
+                sx={{
+                  flexDirection: { xs: "column", sm: "column", md: "row" },
+                }}
+              >
                 <Box flexGrow={1} ref={gridContainerRef}>
                   <Grid container spacing={3}>
                     <Grid
-                      size={4}
-                      item
+                      size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}
                       ref={(el) => (widgetRefs.current["caseStats"] = el)}
                     >
                       {widgetMap.caseStats}
                     </Grid>
-                    <Grid size={4} item>
+                    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                       <div
                         ref={(el) => (widgetRefs.current["pendingCases"] = el)}
                       >
                         {widgetMap.pendingCases}
                       </div>
                     </Grid>
-                    <Grid size={4} item>
+                    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                       <div
                         ref={(el) =>
                           (widgetRefs.current["activeCasesCard"] = el)
@@ -431,12 +443,12 @@ export default function CRMPrototypeDashboard() {
                         {widgetMap.activeCasesCard}
                       </div>
                     </Grid>
-                    <Grid size={8} item>
+                    <Grid size={{ xs: 12, sm: 12, md: 8, lg: 8, xl: 8 }}>
                       <div ref={(el) => (widgetRefs.current["chart"] = el)}>
                         {widgetMap.chart}
                       </div>
                     </Grid>
-                    <Grid size={4} item>
+                    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                       <div
                         ref={(el) =>
                           (widgetRefs.current["progressOverviewCard"] = el)
@@ -449,9 +461,9 @@ export default function CRMPrototypeDashboard() {
                 </Box>
                 <Box
                   sx={{
-                    width: { xs: "100%", md: "50%" },
-                    mt: { xs: 4, md: 0 },
-                    pl: 2,
+                    width: { xs: "100%", sm: "100%", md: "50%" },
+                    mt: { xs: 4, sm: 4, md: 0 },
+                    pl: { xs: 0, sm: 0, md: 2 },
                   }}
                 >
                   <div ref={(el) => (widgetRefs.current["caseList"] = el)}>
@@ -501,7 +513,9 @@ export default function CRMPrototypeDashboard() {
             </DashboardDropZone>
           )}
         </Box>
-        <Footer />
+        <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
+          <Footer />
+        </Box>
       </Box>
     </Box>
   );
