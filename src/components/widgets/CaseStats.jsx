@@ -15,7 +15,7 @@ export default function CaseStats({ stats, isFreeform = false }) {
       sx={{
         p: 2,
         borderRadius: 2,
-        boxShadow: 3,
+        boxShadow: isFreeform ? "none" : 3,
         display: "flex",
         flexDirection: "column",
         width: isFreeform ? "100%" : "auto",
@@ -42,10 +42,26 @@ export default function CaseStats({ stats, isFreeform = false }) {
           </Typography>
         </Box>
         <Box textAlign='right'>
-          <Typography sx={{ fontSize: 14, color: "#222", fontWeight: 500 }}>
+          <Typography
+            sx={{
+              fontSize: 14,
+              color: "#222",
+              fontWeight: 500,
+              mr: isFreeform ? 2 : 0,
+              pr: isFreeform ? 2 : 0,
+            }}
+          >
             ● In Review
           </Typography>
-          <Typography sx={{ fontWeight: 700, fontSize: 18, color: "black" }}>
+          <Typography
+            sx={{
+              fontWeight: 700,
+              fontSize: 18,
+              color: "black",
+              mr: isFreeform ? 2 : 0,
+              pr: isFreeform ? 2 : 0,
+            }}
+          >
             {inReview} Cases
           </Typography>
         </Box>

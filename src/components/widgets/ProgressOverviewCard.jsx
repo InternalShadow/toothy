@@ -28,7 +28,7 @@ export default function ProgressOverviewCard({ stats, isFreeform = false }) {
         borderRadius: 2,
         p: 3,
         boxSizing: "border-box",
-        boxShadow: 3,
+        boxShadow: isFreeform ? "none" : 3,
         display: "flex",
         flexDirection: "column",
         width: isFreeform ? "100%" : "auto",

@@ -87,6 +87,9 @@ export default function Chart({ chartData, isFreeform = false }) {
           ]}
           sx={{
             backgroundColor: "#111",
+
+            mr: isFreeform ? 2 : 0,
+            pr: isFreeform ? 2 : 0,
             ".MuiChartsAxis-label, .MuiChartsAxis-tickLabel": {
               fill: "#fff",
             },
@@ -94,6 +97,9 @@ export default function Chart({ chartData, isFreeform = false }) {
               color: "#fff",
               fontWeight: 500,
               fontSize: 16,
+              m: isFreeform ? "auto" : 0,
+              mr: isFreeform ? 2 : 0,
+              pr: isFreeform ? 2 : 0,
             },
             ".MuiChartsGrid-line": {
               stroke: "#444",

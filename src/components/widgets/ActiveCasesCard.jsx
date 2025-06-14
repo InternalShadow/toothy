@@ -36,7 +36,7 @@ export default function ActiveCasesCard({ stats, isFreeform = false }) {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        boxShadow: 3,
+        boxShadow: isFreeform ? "none" : 3,
         width: isFreeform ? "100%" : "auto",
         height: isFreeform ? "100%" : "auto",
         minWidth: isFreeform ? "unset" : "20vw",

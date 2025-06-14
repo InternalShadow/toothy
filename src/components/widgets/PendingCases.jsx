@@ -26,6 +26,9 @@ export default function PendingCases({ cases, isFreeform = false }) {
           position: "relative",
           display: "inline-flex",
           mb: 2,
+
+          mr: isFreeform ? 2 : 0,
+          pr: isFreeform ? 2 : 0,
         }}
       >
         <CircularProgress
@@ -33,7 +36,13 @@ export default function PendingCases({ cases, isFreeform = false }) {
           value={pendingCount * 10}
           size={80}
           thickness={4}
-          sx={{ color: "#2196f3", zIndex: 1 }}
+          sx={{
+            color: "#2196f3",
+            zIndex: 1,
+
+            mr: isFreeform ? 2 : 0,
+            pr: isFreeform ? 2 : 0,
+          }}
         />
         <CircularProgress
           variant='determinate'
@@ -44,6 +53,9 @@ export default function PendingCases({ cases, isFreeform = false }) {
             color: "lightgray",
             position: "absolute",
             left: 0,
+
+            mr: isFreeform ? 2 : 0,
+            pr: isFreeform ? 2 : 0,
           }}
         />
         <Box
@@ -56,6 +68,10 @@ export default function PendingCases({ cases, isFreeform = false }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+
+            mt: isFreeform ? 2 : 0,
+            mr: isFreeform ? 2 : 0,
+            pr: isFreeform ? 2 : 0,
           }}
         >
           <Typography
@@ -74,11 +90,21 @@ export default function PendingCases({ cases, isFreeform = false }) {
           fontSize: 22,
           color: "black",
           mb: 1,
+
+          mr: isFreeform ? 2 : 0,
+          pr: isFreeform ? 2 : 0,
         }}
       >
         Pending Cases
       </Typography>
-      <Typography sx={{ color: "#222", fontSize: 16 }}>
+      <Typography
+        sx={{
+          color: "#222",
+          fontSize: 16,
+          mr: isFreeform ? 2 : 0,
+          pr: isFreeform ? 2 : 0,
+        }}
+      >
         Awaiting Review
       </Typography>
     </Box>

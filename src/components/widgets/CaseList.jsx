@@ -106,7 +106,7 @@ export default function CaseList({ cases, isFreeform = false }) {
       sx={{
         padding: 2,
         borderRadius: 2,
-        boxShadow: 3,
+        boxShadow: isFreeform ? "none" : 3,
         backgroundColor: "white",
         display: "flex",
         flexDirection: "column",
@@ -133,6 +133,8 @@ export default function CaseList({ cases, isFreeform = false }) {
             fontWeight: 500,
             cursor: "pointer",
             fontSize: 16,
+            mr: isFreeform ? 2 : 0,
+            pr: isFreeform ? 2 : 0,
           }}
         >
           View All
@@ -198,7 +200,12 @@ export default function CaseList({ cases, isFreeform = false }) {
                   {c.cat}
                 </Typography>
               </Box>
-              <Box minWidth={120} textAlign='right'>
+              <Box
+                minWidth={120}
+                mr={isFreeform ? 2 : 0}
+                pr={isFreeform ? 2 : 0}
+                textAlign='right'
+              >
                 <Typography sx={{ fontWeight: 700, fontSize: 22 }}>
                   {c.stat}
                 </Typography>
