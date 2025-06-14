@@ -146,6 +146,7 @@ export default function CaseList({ cases, isFreeform = false }) {
         overflow='scroll'
         maxWidth='25vw'
         borderBottom='1px solid #e0e0e0'
+        pt={1}
         pb={2}
       >
         {filters.map((f) => (
