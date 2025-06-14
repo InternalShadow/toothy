@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, cloneElement } from "react";
 import {
   draggable,
   dropTargetForElements,
@@ -17,6 +17,7 @@ export default function InteractiveWidget({
   onResize,
 }) {
   const ref = useRef(null);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -46,6 +47,24 @@ export default function InteractiveWidget({
       cleanupDropTarget();
     };
   }, [id, onDragEnter, onDragLeave, onDropTarget, onDragStart]);
+
+  useEffect(() => {
+    const observerTarget = ref.current;
+    if (!observerTarget) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width } = entry.contentRect;
+        const baseWidth = 400; // a baseline width for scaling
+        const newScale = Math.max(0.5, Math.min(2, width / baseWidth));
+        setScale(newScale);
+      }
+    });
+
+    resizeObserver.observe(observerTarget);
+
+    return () => resizeObserver.unobserve(observerTarget);
+  }, [size]);
 
   const handleResizeMouseDown = (e) => {
     e.preventDefault();
@@ -92,11 +111,19 @@ export default function InteractiveWidget({
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
         }}
       >
-        {children}
+        <div
+          style={{
+            width: `${100 / scale}%`,
+            height: `${100 / scale}%`,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            display: "flex",
+          }}
+        >
+          {children}
+        </div>
       </div>
       <div
         onMouseDown={handleResizeMouseDown}

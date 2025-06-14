@@ -77,7 +77,7 @@ const getCaseIcon = (category) => {
   }
 };
 
-export default function CaseList({ cases }) {
+export default function CaseList({ cases, isFreeform = false }) {
   const [activeFilter, setActiveFilter] = useState("New");
 
   const filteredCases = cases.filter((c) => {
@@ -108,10 +108,14 @@ export default function CaseList({ cases }) {
         borderRadius: 2,
         boxShadow: 3,
         backgroundColor: "white",
-        overflowY: "scroll",
-        minWidth: "20vw",
-        minHeight: "30vh",
-        maxHeight: "50vh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minWidth: isFreeform ? "unset" : "20vw",
+        minHeight: isFreeform ? "unset" : "30vh",
+        maxHeight: isFreeform ? "unset" : "50vh",
       }}
     >
       <Box
@@ -162,7 +166,7 @@ export default function CaseList({ cases }) {
           </Typography>
         ))}
       </Box>
-      <Box>
+      <Box sx={{ overflowY: "auto", flex: 1 }}>
         {filteredCases.map((c, i) => (
           <React.Fragment key={c.id}>
             <Paper

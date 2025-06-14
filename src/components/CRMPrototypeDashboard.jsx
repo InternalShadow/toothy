@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   useLayoutEffect,
+  cloneElement,
 } from "react";
 import { Box, Grid, Button } from "@mui/material";
 import DashBoardGrid from "./layout/DashBoardGrid";
@@ -20,8 +21,23 @@ import { generateRandomCases } from "./data/CaseData";
 import DashboardDropZone from "./layout/DashBoardDropZone";
 import InteractiveWidget from "./layout/InteractiveWidget";
 
+const generateYearlyData = (min, max) => {
+  return Array.from(
+    { length: 12 },
+    () => Math.floor(Math.random() * (max - min + 1)) + min
+  );
+};
+
 export default function CRMPrototypeDashboard() {
   const caseData = useMemo(() => generateRandomCases(10), []);
+
+  const chartData = useMemo(() => {
+    return {
+      scans: generateYearlyData(10, 25),
+      molds: generateYearlyData(8, 20),
+      impressions: generateYearlyData(5, 18),
+    };
+  }, []);
 
   const stats = useMemo(() => {
     const newCases = caseData.filter((c) => c.cat === "New Case").length;
@@ -79,7 +95,7 @@ export default function CRMPrototypeDashboard() {
       <PendingCases cases={caseData.filter((c) => c.stat === "Pending")} />
     ),
     activeCasesCard: <ActiveCasesCard stats={stats} />,
-    chart: <Chart data={caseData} />,
+    chart: <Chart chartData={chartData} />,
     progressOverviewCard: <ProgressOverviewCard stats={stats} />,
     caseList: <CaseList cases={caseData} />,
   };
@@ -478,7 +494,7 @@ export default function CRMPrototypeDashboard() {
                     dragOverId={dragOverId}
                     onResize={handleResize}
                   >
-                    {widgetMap[widget]}
+                    {cloneElement(widgetMap[widget], { isFreeform: true })}
                   </InteractiveWidget>
                 ))}
               </Box>

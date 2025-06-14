@@ -9,7 +9,7 @@ const STATES = [
   { key: "uploaded", label: "Uploaded" },
 ];
 
-export default function ActiveCasesCard({ stats }) {
+export default function ActiveCasesCard({ stats, isFreeform = false }) {
   const [currentStateIndex, setCurrentStateIndex] = useState(0);
   const currentState = STATES[currentStateIndex];
 
@@ -36,9 +36,11 @@ export default function ActiveCasesCard({ stats }) {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        maxHeight: "235px",
         boxShadow: 3,
-        minWidth: "20vw",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minWidth: isFreeform ? "unset" : "20vw",
+        maxHeight: isFreeform ? "unset" : "235px",
       }}
     >
       <Box

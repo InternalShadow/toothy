@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 
-export default function PendingCases({ cases }) {
+export default function PendingCases({ cases, isFreeform = false }) {
   const pendingCount = cases.length;
 
   return (
@@ -15,8 +15,10 @@ export default function PendingCases({ cases }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "24vh",
-        minWidth: "15vw",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minHeight: isFreeform ? "unset" : "24vh",
+        minWidth: isFreeform ? "unset" : "15vw",
       }}
     >
       <Box

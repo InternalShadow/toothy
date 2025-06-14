@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Paper, Typography } from "@mui/material";
 
-export default function CaseStats({ stats }) {
+export default function CaseStats({ stats, isFreeform = false }) {
   const [activeCases, setActiveCases] = useState(0);
   const [inReview, setInReview] = useState(0);
 
@@ -16,8 +16,12 @@ export default function CaseStats({ stats }) {
         p: 2,
         borderRadius: 2,
         boxShadow: 3,
-        minHeight: "20vh",
-        minWidth: "15vw",
+        display: "flex",
+        flexDirection: "column",
+        width: isFreeform ? "100%" : "auto",
+        height: isFreeform ? "100%" : "auto",
+        minHeight: isFreeform ? "unset" : "20vh",
+        minWidth: isFreeform ? "unset" : "15vw",
       }}
     >
       <Typography
