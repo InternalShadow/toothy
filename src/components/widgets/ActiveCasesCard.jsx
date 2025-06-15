@@ -150,6 +150,34 @@ export default function ActiveCasesCard({ stats, isFreeform = false }) {
           </Typography>
         </Box>
       </Box>
+      <Box display='flex' justifyContent='center' alignItems='center' pt={2}>
+        {STATES.map((_, index) => (
+          <Box
+            key={index}
+            component='button'
+            onClick={() => setCurrentStateIndex(index)}
+            sx={{
+              p: 0,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              "&:focus": { outline: "none" },
+              mx: 0.5,
+            }}
+          >
+            <Box
+              sx={{
+                height: 8,
+                width: currentStateIndex === index ? 24 : 8,
+                borderRadius: 4,
+                bgcolor:
+                  currentStateIndex === index ? "common.black" : "grey.300",
+                transition: "width 0.3s ease, background-color 0.3s ease",
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 }

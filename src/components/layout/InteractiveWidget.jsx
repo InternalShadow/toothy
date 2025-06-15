@@ -25,7 +25,12 @@ export default function InteractiveWidget({
 
     const cleanupDraggable = draggable({
       element: ref.current,
-      getInitialData: () => ({ type: "widget", id }),
+      getInitialData: (args) => {
+        const rect = ref.current.getBoundingClientRect();
+        const offsetX = args.input.clientX - rect.left;
+        const offsetY = args.input.clientY - rect.top;
+        return { type: "widget", id, offsetX, offsetY };
+      },
       onDragStart: () => {
         if (ref.current) ref.current.style.pointerEvents = "none";
         onDragStart?.(id);

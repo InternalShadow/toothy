@@ -145,11 +145,30 @@ export default function CaseList({ cases, isFreeform = false }) {
         alignItems='center'
         gap={3}
         mb={3}
-        overflow='scroll'
         maxWidth={{ xs: "80vw", sm: "80vw", md: "25vw" }}
         borderBottom='1px solid #e0e0e0'
         pt={1}
-        pb={2}
+        pb={3}
+        sx={{
+          overflowX: "auto",
+          overflowY: "hidden",
+
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "rgba(0,0,0,0.4)",
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(0,0,0,0.2) transparent",
+        }}
       >
         {filters.map((f) => (
           <Typography
@@ -169,7 +188,28 @@ export default function CaseList({ cases, isFreeform = false }) {
           </Typography>
         ))}
       </Box>
-      <Box sx={{ overflowY: "auto", flex: 1 }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          pr: 2,
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "rgba(0,0,0,0.4)",
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(0,0,0,0.2) transparent",
+        }}
+      >
         {filteredCases.map((c, i) => (
           <React.Fragment key={c.id}>
             <Paper

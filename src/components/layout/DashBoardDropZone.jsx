@@ -33,13 +33,14 @@ const DashboardDropZone = forwardRef(function DashboardDropZone(
         const rect = ref.current.getBoundingClientRect();
         const { clientX: pointerX, clientY: pointerY } = location.current.input;
 
-        // Size of dragged element to center under cursor
+        // Get offset from dragged data, fallback to centering.
+        const { offsetX, offsetY } = source.data;
         const draggedRect = source.element?.getBoundingClientRect();
-        const halfW = draggedRect ? draggedRect.width / 2 : 0;
-        const halfH = draggedRect ? draggedRect.height / 2 : 0;
+        const fallbackX = draggedRect ? draggedRect.width / 2 : 0;
+        const fallbackY = draggedRect ? draggedRect.height / 2 : 0;
 
-        let x = pointerX - rect.left - halfW;
-        let y = pointerY - rect.top - halfH;
+        let x = pointerX - rect.left - (offsetX ?? fallbackX);
+        let y = pointerY - rect.top - (offsetY ?? fallbackY);
 
         // Clamp to stay within drop zone bounds
         const maxX = rect.width - (draggedRect?.width ?? 0);

@@ -30,7 +30,7 @@ export default function Chart({ chartData, isFreeform = false }) {
         flexDirection: "column",
         width: isFreeform ? "100%" : "auto",
         height: isFreeform ? "100%" : "auto",
-        minHeight: isFreeform ? "unset" : "24vh",
+        minHeight: isFreeform ? "unset" : "25vh",
         minWidth: isFreeform ? "unset" : "25vw",
       }}
     >
@@ -89,6 +89,7 @@ export default function Chart({ chartData, isFreeform = false }) {
 
             mr: isFreeform ? 2 : 0,
             pr: isFreeform ? 2 : 0,
+            minHeight: isFreeform ? "unset" : "25.5vh",
             ".MuiChartsAxis-label, .MuiChartsAxis-tickLabel": {
               fill: "#fff",
             },
