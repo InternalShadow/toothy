@@ -32,7 +32,14 @@ export default function CaseStats({ stats, isFreeform = false }) {
       <Typography sx={{ fontWeight: 700, fontSize: 32, mb: 3 }}>
         {activeCases} Active Cases
       </Typography>
-      <Box display='flex' justifyContent='space-between' mt={1}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mt: isFreeform ? "auto" : 1,
+          mb: isFreeform ? "auto" : 1,
+        }}
+      >
         <Box>
           <Typography sx={{ fontSize: 14, color: "#222", fontWeight: 500 }}>
             &#9650; Due Soon

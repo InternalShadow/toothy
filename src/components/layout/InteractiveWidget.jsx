@@ -60,9 +60,13 @@ export default function InteractiveWidget({
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        const { width } = entry.contentRect;
-        const baseWidth = 400; // A baseline width for scaling content
-        const newScale = Math.max(0.5, Math.min(2, width / baseWidth));
+        const { width, height } = entry.contentRect;
+        const baseDimension = 400; // A baseline dimension for scaling content
+        const currentDimension = (width + height) / 2;
+        const newScale = Math.max(
+          0.5,
+          Math.min(2, currentDimension / baseDimension)
+        );
         setScale(newScale);
       }
     });

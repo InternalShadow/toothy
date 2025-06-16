@@ -193,6 +193,8 @@ export default function CaseList({ cases, isFreeform = false }) {
           flex: 1,
           overflowY: "auto",
           pr: 2,
+
+          minHeight: 0,
           "&::-webkit-scrollbar": {
             width: "8px",
           },
