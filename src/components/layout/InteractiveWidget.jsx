@@ -15,6 +15,8 @@ export default function InteractiveWidget({
   position,
   size,
   onResize,
+  onRemove,
+  scaleWith = "average",
 }) {
   const ref = useRef(null);
   const [scale, setScale] = useState(1);
@@ -61,12 +63,31 @@ export default function InteractiveWidget({
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
-        const baseDimension = 400; // A baseline dimension for scaling content
-        const currentDimension = (width + height) / 2;
-        const newScale = Math.max(
-          0.5,
-          Math.min(2, currentDimension / baseDimension)
-        );
+        const baseDimension = 400; // baseline dimension
+
+        let newScale = 1;
+        switch (scaleWith) {
+          case "width": {
+            newScale = Math.max(0.5, Math.min(2, width / baseDimension));
+            break;
+          }
+          case "height": {
+            newScale = Math.max(0.5, Math.min(2, height / baseDimension));
+            break;
+          }
+          case "none": {
+            newScale = 1;
+            break;
+          }
+          case "average":
+          default: {
+            const currentDimension = (width + height) / 2;
+            newScale = Math.max(
+              0.5,
+              Math.min(2, currentDimension / baseDimension)
+            );
+          }
+        }
         setScale(newScale);
       }
     });
@@ -74,7 +95,7 @@ export default function InteractiveWidget({
     resizeObserver.observe(observerTarget);
 
     return () => resizeObserver.unobserve(observerTarget);
-  }, [size, isFreeform]);
+  }, [size, isFreeform, scaleWith]);
 
   const handleResizeMouseDown = (e) => {
     e.preventDefault();
@@ -129,15 +150,46 @@ export default function InteractiveWidget({
       >
         <div
           style={{
-            width: isFreeform ? `${100 / scale}%` : "100%",
-            height: isFreeform ? `${100 / scale}%` : "100%",
-            transform: isFreeform ? `scale(${scale})` : "none",
+            width: isFreeform
+              ? `${scaleWith === "none" ? 100 : 100 / scale}%`
+              : "100%",
+            height: isFreeform
+              ? `${scaleWith === "none" ? 100 : 100 / scale}%`
+              : "100%",
+            transform:
+              isFreeform && scaleWith !== "none" ? `scale(${scale})` : "none",
             transformOrigin: "top left",
           }}
         >
           {children}
         </div>
       </div>
+      {isFreeform && onRemove && (
+        <button
+          onClick={() => onRemove(id)}
+          style={{
+            position: "absolute",
+            top: "-6px",
+            right: "-10px",
+            width: "10px",
+            height: "10px",
+            background: "#fff",
+            color: "#333",
+            border: "1px solid #ddd",
+            borderRadius: "50%",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 20,
+            fontSize: "14px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+          }}
+          aria-label={`Remove widget ${id}`}
+        >
+          &#x2715;
+        </button>
+      )}
       {isFreeform && (
         <div
           onMouseDown={handleResizeMouseDown}

@@ -20,6 +20,7 @@ import Footer from "./widgets/Footer";
 import { generateRandomCases } from "./data/CaseData";
 import DashboardDropZone from "./layout/DashBoardDropZone";
 import InteractiveWidget from "./layout/InteractiveWidget";
+import WidgetStore from "./widgets/WidgetStore";
 
 const generateYearlyData = (min, max) => {
   return Array.from(
@@ -103,6 +104,7 @@ export default function CRMPrototypeDashboard() {
   const [dragOverId, setDragOverId] = useState(null);
   const [draggedId, setDraggedId] = useState(null);
   const [layoutMode, setLayoutMode] = useState("grid");
+  const [isWidgetStoreOpen, setWidgetStoreOpen] = useState(false);
 
   const hasLoaded = useRef(false);
   const hasUserMovedWidget = useRef(false);
@@ -130,6 +132,12 @@ export default function CRMPrototypeDashboard() {
     });
     return initial;
   });
+
+  const allWidgetIds = useMemo(() => Object.keys(widgetMap), []);
+  const availableWidgets = useMemo(
+    () => allWidgetIds.filter((id) => !widgets.includes(id)),
+    [allWidgetIds, widgets]
+  );
 
   // Keep positions state in sync when new widgets are introduced
   useEffect(() => {
@@ -218,6 +226,80 @@ export default function CRMPrototypeDashboard() {
     // 3. Commit the new state
     setWidgetPositions(newPositions);
     setWidgetSizes(newSizes);
+  };
+
+  const findFreeSpace = (widgetSize) => {
+    const dropZone = dropZoneRef.current;
+    if (!dropZone) return { x: 0, y: 0 }; // Fallback
+
+    const dropZoneWidth = dropZone.offsetWidth;
+    const dropZoneHeight = dropZone.offsetHeight;
+    const existingWidgetRects = widgets.map((id) => ({
+      ...widgetPositions[id],
+      ...widgetSizes[id],
+    }));
+    const gap = 15;
+    const step = 40; // Align with grid background
+
+    for (let y = 0; y <= dropZoneHeight - widgetSize.height; y += step) {
+      for (let x = 0; x <= dropZoneWidth - widgetSize.width; x += step) {
+        const newRect = {
+          x,
+          y,
+          width: widgetSize.width,
+          height: widgetSize.height,
+        };
+        let hasOverlap = false;
+
+        for (const existingRect of existingWidgetRects) {
+          const isOverlapping =
+            newRect.x < existingRect.x + existingRect.width + gap &&
+            newRect.x + newRect.width + gap > existingRect.x &&
+            newRect.y < existingRect.y + existingRect.height + gap &&
+            newRect.y + newRect.height + gap > existingRect.y;
+
+          if (isOverlapping) {
+            hasOverlap = true;
+            break;
+          }
+        }
+
+        if (!hasOverlap) {
+          return { x, y };
+        }
+      }
+    }
+
+    // Fallback if no space is found (e.g., stack at the bottom)
+    const yFallback = Math.max(
+      ...existingWidgetRects.map((r) => r.y + r.height + gap),
+      0
+    );
+    return { x: 0, y: yFallback };
+  };
+
+  const handleAddWidget = (widgetId) => {
+    hasUserMovedWidget.current = true;
+
+    const defaultSizes = {
+      chart: { width: 600, height: 350 },
+      caseList: { width: 450, height: 400 },
+    };
+    const newWidgetSize = defaultSizes[widgetId] || { width: 320, height: 280 };
+
+    const position = findFreeSpace(newWidgetSize);
+
+    setWidgets((prev) => [...prev, widgetId]);
+    setWidgetPositions((prev) => ({ ...prev, [widgetId]: position }));
+    setWidgetSizes((prev) => ({ ...prev, [widgetId]: newWidgetSize }));
+
+    setWidgetStoreOpen(false);
+  };
+
+  const handleRemoveWidget = (widgetId) => {
+    hasUserMovedWidget.current = true;
+    setWidgets((prev) => prev.filter((id) => id !== widgetId));
+    // Note: position and size data can remain, will be overwritten if widget is re-added
   };
 
   const handleDropPosition = (id, coords) => {
@@ -408,6 +490,16 @@ export default function CRMPrototypeDashboard() {
                 Save Layout
               </Button>
             )}
+            {layoutMode === "list" && (
+              <Button
+                sx={{ ml: 2 }}
+                variant='outlined'
+                color='secondary'
+                onClick={() => setWidgetStoreOpen(true)}
+              >
+                Add Widget
+              </Button>
+            )}
           </Box>
           {layoutMode === "grid" ? (
             <DashBoardGrid>
@@ -505,6 +597,8 @@ export default function CRMPrototypeDashboard() {
                     onDropTarget={(destId) => reorderWidgets(draggedId, destId)}
                     dragOverId={dragOverId}
                     onResize={handleResize}
+                    onRemove={handleRemoveWidget}
+                    scaleWith={widget === "caseList" ? "width" : "average"}
                   >
                     {cloneElement(widgetMap[widget], { isFreeform: true })}
                   </InteractiveWidget>
@@ -517,6 +611,12 @@ export default function CRMPrototypeDashboard() {
           <Footer />
         </Box>
       </Box>
+      <WidgetStore
+        isOpen={isWidgetStoreOpen}
+        onClose={() => setWidgetStoreOpen(false)}
+        availableWidgets={availableWidgets}
+        onAddWidget={handleAddWidget}
+      />
     </Box>
   );
 }
