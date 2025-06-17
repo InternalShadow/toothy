@@ -71,3 +71,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* ===== Global color inversion ===== */
+html.invert-colors {
+  /* Fully invert all colors */
+  filter: invert(1);
+}

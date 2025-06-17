@@ -5,6 +5,7 @@ import CustomDatePicker from "../CustomDatePicker";
 import NavbarBreadcrumbs from "../NavbarBreadCrumbs";
 import MenuButton from "../MenuButton";
 import ColorModeIconDropdown from "../../styles/shared-theme/ColorModeIconDropdown";
+import InvertColorButton from "../InvertColorButton";
 
 import Search from "../Search";
 
@@ -32,6 +33,7 @@ export default function Header() {
         <MenuButton showBadge aria-label='Open notifications'>
           <NotificationsRoundedIcon />
         </MenuButton>
+        <InvertColorButton />
         <ColorModeIconDropdown />
       </Stack>
     </Stack>
