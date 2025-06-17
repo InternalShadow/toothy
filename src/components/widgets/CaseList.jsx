@@ -149,7 +149,9 @@ export default function CaseList({ cases, isFreeform = false }) {
         borderBottom='1px solid #e0e0e0'
         pt={1}
         pb={3}
+        pr={isFreeform ? 4 : 0}
         sx={{
+          // alignSelf: "flex-start",
           overflowX: "auto",
           overflowY: "hidden",
 
@@ -190,9 +192,11 @@ export default function CaseList({ cases, isFreeform = false }) {
       </Box>
       <Box
         sx={{
+          maxWidth: isFreeform ? "88%" : "auto",
+
           flex: 1,
-          overflowY: "auto",
-          pr: 2,
+          overflowY: "scroll",
+          pr: isFreeform ? 4 : 2,
 
           minHeight: 0,
           "&::-webkit-scrollbar": {
@@ -219,6 +223,7 @@ export default function CaseList({ cases, isFreeform = false }) {
               sx={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 background: c.stat === "In Review" ? "#f5f5f5" : "transparent",
                 boxShadow:
                   c.stat === "In Review"
@@ -228,27 +233,22 @@ export default function CaseList({ cases, isFreeform = false }) {
                 p: c.stat === "In Review" ? 3 : 0,
                 my: c.stat === "In Review" ? 2 : 0,
                 minHeight: 80,
-                mb: 0,
+                mb: isFreeform ? 2 : 0,
               }}
             >
               <Box mr={3} display='flex' alignItems='center'>
                 {getCaseIcon(c.cat)}
               </Box>
               <Box flex={1}>
-                <Typography sx={{ fontWeight: 700, fontSize: 22 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
                   Case #{c.cas}
                 </Typography>
                 <Typography sx={{ color: "#222", fontSize: 16 }}>
                   {c.cat}
                 </Typography>
               </Box>
-              <Box
-                minWidth={120}
-                mr={isFreeform ? 2 : 0}
-                pr={isFreeform ? 2 : 0}
-                textAlign='right'
-              >
-                <Typography sx={{ fontWeight: 700, fontSize: 22 }}>
+              <Box minWidth={120} textAlign='right'>
+                <Typography sx={{ fontWeight: 700, fontSize: 20 }}>
                   {c.stat}
                 </Typography>
               </Box>
