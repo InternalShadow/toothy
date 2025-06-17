@@ -598,7 +598,9 @@ export default function CRMPrototypeDashboard() {
                     dragOverId={dragOverId}
                     onResize={handleResize}
                     onRemove={handleRemoveWidget}
-                    scaleWith={widget === "caseList" ? "width" : "average"}
+                    scaleWith={
+                      widget === "caseList" ? "width-shrink" : "average"
+                    }
                   >
                     {cloneElement(widgetMap[widget], { isFreeform: true })}
                   </InteractiveWidget>

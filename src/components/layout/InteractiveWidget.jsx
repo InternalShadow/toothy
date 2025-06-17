@@ -71,6 +71,10 @@ export default function InteractiveWidget({
             newScale = Math.max(0.5, Math.min(2, width / baseDimension));
             break;
           }
+          case "width-shrink": {
+            newScale = Math.max(0.5, Math.min(1, width / baseDimension));
+            break;
+          }
           case "height": {
             newScale = Math.max(0.5, Math.min(2, height / baseDimension));
             break;

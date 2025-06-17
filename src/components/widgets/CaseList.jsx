@@ -143,15 +143,16 @@ export default function CaseList({ cases, isFreeform = false }) {
       <Box
         display='flex'
         alignItems='center'
+        flexWrap='nowrap'
         gap={3}
         mb={3}
-        maxWidth={{ xs: "80vw", sm: "80vw", md: "25vw" }}
+        maxWidth={isFreeform ? "95%" : { xs: "80vw", sm: "80vw", md: "25vw" }}
         borderBottom='1px solid #e0e0e0'
         pt={1}
         pb={3}
         pr={isFreeform ? 4 : 0}
         sx={{
-          // alignSelf: "flex-start",
+          alignSelf: "flex-start",
           overflowX: "auto",
           overflowY: "hidden",
 
@@ -192,7 +193,7 @@ export default function CaseList({ cases, isFreeform = false }) {
       </Box>
       <Box
         sx={{
-          maxWidth: isFreeform ? "88%" : "auto",
+          maxWidth: isFreeform ? "92%" : "auto",
 
           flex: 1,
           overflowY: "scroll",
