@@ -6,7 +6,7 @@ import React, {
   useLayoutEffect,
   cloneElement,
 } from "react";
-import { Box, Grid, Button } from "@mui/material";
+import { Box, Grid, Button, Snackbar, Alert } from "@mui/material";
 import DashBoardGrid from "./layout/DashBoardGrid";
 import CaseStats from "./widgets/CaseStats";
 import PendingCases from "./widgets/PendingCases";
@@ -105,6 +105,9 @@ export default function CRMPrototypeDashboard() {
   const [draggedId, setDraggedId] = useState(null);
   const [layoutMode, setLayoutMode] = useState("grid");
   const [isWidgetStoreOpen, setWidgetStoreOpen] = useState(false);
+
+  // Snackbar state for save confirmation
+  const [saveSnackbarOpen, setSaveSnackbarOpen] = useState(false);
 
   const hasLoaded = useRef(false);
   const hasUserMovedWidget = useRef(false);
@@ -485,6 +488,7 @@ export default function CRMPrototypeDashboard() {
                     "crmFreeformLayout",
                     JSON.stringify(payload)
                   );
+                  setSaveSnackbarOpen(true);
                 }}
               >
                 Save Layout
@@ -578,7 +582,7 @@ export default function CRMPrototypeDashboard() {
                   position: "relative",
                   minHeight: "100vh",
                   width: "87vw",
-                  // maxWidth: "87vw",
+
                   display: "flex",
                   flexWrap: "row",
                   gap: 2,
@@ -619,6 +623,21 @@ export default function CRMPrototypeDashboard() {
         availableWidgets={availableWidgets}
         onAddWidget={handleAddWidget}
       />
+      {/* Save confirmation snackbar */}
+      <Snackbar
+        open={saveSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSaveSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSaveSnackbarOpen(false)}
+          severity='success'
+          sx={{ width: "100%" }}
+        >
+          Layout saved successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
