@@ -11,6 +11,8 @@ export default function LayoutToolbar({
   onToggleLayout,
   onSaveLayout,
   onAddWidget,
+  isLocked,
+  onToggleLock,
 }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -48,6 +50,16 @@ export default function LayoutToolbar({
           onClick={onAddWidget}
         >
           Add Widget
+        </Button>
+      )}
+      {layoutMode === "list" && (
+        <Button
+          sx={{ ml: 2 }}
+          variant='contained'
+          color={isLocked ? "success" : "warning"}
+          onClick={onToggleLock}
+        >
+          {isLocked ? "Unlock Layout" : "Lock Layout"}
         </Button>
       )}
 

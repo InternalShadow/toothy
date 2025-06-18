@@ -66,6 +66,7 @@ export default function CRMPrototypeDashboard() {
   const [dragOverId, setDragOverId] = useState(null);
   const [draggedId, setDraggedId] = useState(null);
   const [layoutMode, setLayoutMode] = useState("grid");
+  const [isLocked, setIsLocked] = useState(false);
   const [isWidgetStoreOpen, setWidgetStoreOpen] = useState(false);
 
   const allWidgetIds = useMemo(() => Object.keys(widgetMap), []);
@@ -141,6 +142,10 @@ export default function CRMPrototypeDashboard() {
     }
   };
 
+  const toggleLock = () => {
+    setIsLocked((prev) => !prev);
+  };
+
   // After freeform layout mounts, translate captured positions relative to drop zone
   useLayoutEffect(() => {
     if (
@@ -208,7 +213,9 @@ export default function CRMPrototypeDashboard() {
           >
             <LayoutToolbar
               layoutMode={layoutMode}
+              isLocked={isLocked}
               onToggleLayout={toggleLayout}
+              onToggleLock={toggleLock}
               onSaveLayout={() => {
                 saveLayout();
               }}
@@ -308,10 +315,15 @@ export default function CRMPrototypeDashboard() {
                     onDragStart={(id) => setDraggedId(id)}
                     onDragEnter={(id) => setDragOverId(id)}
                     onDragLeave={() => setDragOverId(null)}
-                    onDropTarget={(destId) => reorderWidgets(draggedId, destId)}
+                    onDropTarget={
+                      isLocked
+                        ? undefined
+                        : (destId) => reorderWidgets(draggedId, destId)
+                    }
                     dragOverId={dragOverId}
                     onResize={handleResize}
-                    onRemove={handleRemoveWidget}
+                    onRemove={isLocked ? undefined : handleRemoveWidget}
+                    isLocked={isLocked}
                     scaleWith={
                       widget === "caseList" ? "width-shrink" : "average"
                     }
