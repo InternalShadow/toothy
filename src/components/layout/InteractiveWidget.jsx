@@ -17,13 +17,15 @@ export default function InteractiveWidget({
   onResize,
   onRemove,
   scaleWith = "average",
+  isLocked = false,
 }) {
   const ref = useRef(null);
   const [scale, setScale] = useState(1);
   const isFreeform = !!position;
+  const isInteractive = isFreeform && !isLocked;
 
   useEffect(() => {
-    if (!ref.current || !isFreeform) return;
+    if (!ref.current || !isInteractive) return;
 
     const cleanupDraggable = draggable({
       element: ref.current,
@@ -54,7 +56,7 @@ export default function InteractiveWidget({
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [id, onDragEnter, onDragLeave, onDropTarget, onDragStart, isFreeform]);
+  }, [id, onDragEnter, onDragLeave, onDropTarget, onDragStart, isInteractive]);
 
   useEffect(() => {
     const observerTarget = ref.current;
@@ -168,7 +170,7 @@ export default function InteractiveWidget({
           {children}
         </div>
       </div>
-      {isFreeform && onRemove && (
+      {isInteractive && onRemove && (
         <button
           onClick={() => onRemove(id)}
           style={{
@@ -194,7 +196,7 @@ export default function InteractiveWidget({
           &#x2715;
         </button>
       )}
-      {isFreeform && (
+      {isInteractive && (
         <div
           onMouseDown={handleResizeMouseDown}
           style={{
