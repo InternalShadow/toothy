@@ -6,7 +6,7 @@ import React, {
   useLayoutEffect,
   cloneElement,
 } from "react";
-import { Box, Grid, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import DashBoardGrid from "./layout/DashBoardGrid";
 import CaseStats from "./widgets/CaseStats";
 import PendingCases from "./widgets/PendingCases";
@@ -17,67 +17,15 @@ import ProgressOverviewCard from "./widgets/ProgressOverviewCard";
 import CaseList from "./widgets/CaseList";
 import ActiveCasesCard from "./widgets/ActiveCasesCard";
 import Footer from "./widgets/Footer";
-import { generateRandomCases } from "./data/CaseData";
+import useDashboardData from "../hooks/useDashboardData";
 import DashboardDropZone from "./layout/DashBoardDropZone";
 import InteractiveWidget from "./layout/InteractiveWidget";
 import WidgetStore from "./widgets/WidgetStore";
-
-const generateYearlyData = (min, max) => {
-  return Array.from(
-    { length: 12 },
-    () => Math.floor(Math.random() * (max - min + 1)) + min
-  );
-};
+import LayoutToolbar from "./LayoutToolbar";
+import useWidgetLayout from "../hooks/useWidgetLayout";
 
 export default function CRMPrototypeDashboard() {
-  const caseData = useMemo(() => generateRandomCases(10), []);
-
-  const chartData = useMemo(() => {
-    return {
-      scans: generateYearlyData(10, 25),
-      molds: generateYearlyData(8, 20),
-      impressions: generateYearlyData(5, 18),
-    };
-  }, []);
-
-  const stats = useMemo(() => {
-    const newCases = caseData.filter((c) => c.cat === "New Case").length;
-    const total = caseData.length;
-    const completed = caseData.filter((c) => c.stat === "Completed").length;
-    const pending = caseData.filter((c) => c.stat === "Pending").length;
-    const inReview = caseData.filter((c) => c.stat === "In Review").length;
-    const uploaded = caseData.filter((c) => c.stat === "Uploaded").length;
-    const inProgress = caseData.filter((c) => c.stat === "In Progress").length;
-
-    return {
-      total,
-      newCases,
-      completed,
-      pending,
-      inProgress,
-      inReview,
-      uploaded,
-      completionPercentage: Math.round((completed / total) * 100),
-    };
-  }, [caseData]);
-
-  // Load persisted freeform layout (order & positions)
-  let persistedOrder = null;
-  let persistedPositions = null;
-  let persistedSizes = null;
-  try {
-    const raw =
-      typeof window !== "undefined" &&
-      localStorage.getItem("crmFreeformLayout");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      persistedOrder = parsed?.order;
-      persistedPositions = parsed?.positions;
-      persistedSizes = parsed?.sizes;
-    }
-  } catch (_) {
-    // ignore
-  }
+  const { caseData, chartData, stats } = useDashboardData(10);
 
   const defaultOrder = [
     "caseStats",
@@ -88,7 +36,21 @@ export default function CRMPrototypeDashboard() {
     "caseList",
   ];
 
-  const [widgets, setWidgets] = useState(persistedOrder ?? defaultOrder);
+  const {
+    widgets,
+    setWidgets,
+    widgetPositions,
+    setWidgetPositions,
+    widgetSizes,
+    setWidgetSizes,
+    addWidget,
+    removeWidget,
+    saveLayout,
+    hasUserMovedRef,
+    handleLayoutChange: applyLayoutChange,
+    findFreeSpace: calcFreeSpace,
+    reorderWidgets,
+  } = useWidgetLayout(defaultOrder);
 
   const widgetMap = {
     caseStats: <CaseStats stats={stats} />,
@@ -106,184 +68,19 @@ export default function CRMPrototypeDashboard() {
   const [layoutMode, setLayoutMode] = useState("grid");
   const [isWidgetStoreOpen, setWidgetStoreOpen] = useState(false);
 
-  // Snackbar state for save confirmation
-  const [saveSnackbarOpen, setSaveSnackbarOpen] = useState(false);
-
-  const hasLoaded = useRef(false);
-  const hasUserMovedWidget = useRef(false);
-
-  // Track absolute x/y positions for widgets in freeform mode
-  const [widgetPositions, setWidgetPositions] = useState(() => {
-    if (persistedPositions) {
-      hasLoaded.current = true;
-      return persistedPositions;
-    }
-    const initial = {};
-    (persistedOrder ?? defaultOrder).forEach((w, i) => {
-      initial[w] = { x: i * 120, y: i * 80 };
-    });
-    return initial;
-  });
-
-  const [widgetSizes, setWidgetSizes] = useState(() => {
-    if (persistedSizes) return persistedSizes;
-    const initial = {};
-    (persistedOrder ?? defaultOrder).forEach((id) => {
-      if (id === "chart") initial[id] = { width: 600, height: 350 };
-      else if (id === "caseList") initial[id] = { width: 450, height: 400 };
-      else initial[id] = { width: 320, height: 280 };
-    });
-    return initial;
-  });
-
   const allWidgetIds = useMemo(() => Object.keys(widgetMap), []);
   const availableWidgets = useMemo(
     () => allWidgetIds.filter((id) => !widgets.includes(id)),
     [allWidgetIds, widgets]
   );
 
-  // Keep positions state in sync when new widgets are introduced
-  useEffect(() => {
-    setWidgetPositions((prev) => {
-      const next = { ...prev };
-      widgets.forEach((w, i) => {
-        if (!next[w]) {
-          next[w] = { x: i * 120, y: i * 80 };
-        }
-      });
-      return next;
-    });
-  }, [widgets]);
+  const handleLayoutChange = (args) =>
+    applyLayoutChange(args, dropZoneRef.current?.getBoundingClientRect());
 
-  const handleLayoutChange = ({ id, position, size }) => {
-    hasUserMovedWidget.current = true;
-
-    // Create mutable copies of the current state
-    const newPositions = { ...widgetPositions };
-    const newSizes = { ...widgetSizes };
-
-    const dropZoneBounds = dropZoneRef.current?.getBoundingClientRect();
-
-    // 1. Apply and clamp the incoming change (either position or size)
-    if (size) {
-      let newWidth = Math.max(200, size.width);
-      let newHeight = Math.max(150, size.height);
-
-      if (dropZoneBounds) {
-        const currentPos = newPositions[id];
-        newWidth = Math.min(newWidth, dropZoneBounds.width - currentPos.x);
-        newHeight = Math.min(newHeight, dropZoneBounds.height - currentPos.y);
-      }
-      newSizes[id] = { width: newWidth, height: newHeight };
-    }
-
-    if (position) {
-      let newX = position.x;
-      let newY = position.y;
-
-      if (dropZoneBounds) {
-        const currentSize = newSizes[id];
-        newX = Math.max(
-          0,
-          Math.min(newX, dropZoneBounds.width - currentSize.width)
-        );
-        newY = Math.max(
-          0,
-          Math.min(newY, dropZoneBounds.height - currentSize.height)
-        );
-      }
-      newPositions[id] = { x: newX, y: newY };
-    }
-
-    // 2. Resolve collisions caused by the change
-    const mainWidgetRect = { ...newPositions[id], ...newSizes[id] };
-    const gap = 15;
-
-    widgets.forEach((otherId) => {
-      if (id === otherId) return;
-
-      const otherWidgetRect = {
-        ...newPositions[otherId],
-        ...newSizes[otherId],
-      };
-
-      const isOverlapping =
-        mainWidgetRect.x < otherWidgetRect.x + otherWidgetRect.width &&
-        mainWidgetRect.x + mainWidgetRect.width > otherWidgetRect.x &&
-        mainWidgetRect.y < otherWidgetRect.y + otherWidgetRect.height &&
-        mainWidgetRect.y + mainWidgetRect.height > otherWidgetRect.y;
-
-      if (isOverlapping) {
-        // Push the other widget down
-        let pushedY = mainWidgetRect.y + mainWidgetRect.height + gap;
-        if (dropZoneBounds) {
-          pushedY = Math.min(
-            pushedY,
-            dropZoneBounds.height - newSizes[otherId].height
-          );
-        }
-        newPositions[otherId].y = pushedY;
-      }
-    });
-
-    // 3. Commit the new state
-    setWidgetPositions(newPositions);
-    setWidgetSizes(newSizes);
-  };
-
-  const findFreeSpace = (widgetSize) => {
-    const dropZone = dropZoneRef.current;
-    if (!dropZone) return { x: 0, y: 0 }; // Fallback
-
-    const dropZoneWidth = dropZone.offsetWidth;
-    const dropZoneHeight = dropZone.offsetHeight;
-    const existingWidgetRects = widgets.map((id) => ({
-      ...widgetPositions[id],
-      ...widgetSizes[id],
-    }));
-    const gap = 15;
-    const step = 40; // Align with grid background
-
-    for (let y = 0; y <= dropZoneHeight - widgetSize.height; y += step) {
-      for (let x = 0; x <= dropZoneWidth - widgetSize.width; x += step) {
-        const newRect = {
-          x,
-          y,
-          width: widgetSize.width,
-          height: widgetSize.height,
-        };
-        let hasOverlap = false;
-
-        for (const existingRect of existingWidgetRects) {
-          const isOverlapping =
-            newRect.x < existingRect.x + existingRect.width + gap &&
-            newRect.x + newRect.width + gap > existingRect.x &&
-            newRect.y < existingRect.y + existingRect.height + gap &&
-            newRect.y + newRect.height + gap > existingRect.y;
-
-          if (isOverlapping) {
-            hasOverlap = true;
-            break;
-          }
-        }
-
-        if (!hasOverlap) {
-          return { x, y };
-        }
-      }
-    }
-
-    // Fallback if no space is found (e.g., stack at the bottom)
-    const yFallback = Math.max(
-      ...existingWidgetRects.map((r) => r.y + r.height + gap),
-      0
-    );
-    return { x: 0, y: yFallback };
-  };
+  const findFreeSpace = (widgetSize) =>
+    calcFreeSpace(widgetSize, dropZoneRef.current);
 
   const handleAddWidget = (widgetId) => {
-    hasUserMovedWidget.current = true;
-
     const defaultSizes = {
       chart: { width: 600, height: 350 },
       caseList: { width: 450, height: 400 },
@@ -292,16 +89,12 @@ export default function CRMPrototypeDashboard() {
 
     const position = findFreeSpace(newWidgetSize);
 
-    setWidgets((prev) => [...prev, widgetId]);
-    setWidgetPositions((prev) => ({ ...prev, [widgetId]: position }));
-    setWidgetSizes((prev) => ({ ...prev, [widgetId]: newWidgetSize }));
-
+    addWidget(widgetId, position, newWidgetSize);
     setWidgetStoreOpen(false);
   };
 
   const handleRemoveWidget = (widgetId) => {
-    hasUserMovedWidget.current = true;
-    setWidgets((prev) => prev.filter((id) => id !== widgetId));
+    removeWidget(widgetId);
     // Note: position and size data can remain, will be overwritten if widget is re-added
   };
 
@@ -368,69 +161,14 @@ export default function CRMPrototypeDashboard() {
     }
   }, [layoutMode]);
 
-  // Helper to reorder widgets given a source and destination id (destination
-  // may be undefined when dropping onto the free-form zone).
-  const reorderWidgets = (sourceId, destinationId) => {
-    hasUserMovedWidget.current = true;
-    setWidgets((prev) => {
-      // clone current order
-      const newOrder = [...prev];
-
-      const sourceIdx = newOrder.indexOf(sourceId);
-
-      if (sourceIdx === -1) return prev;
-
-      if (!destinationId) {
-        // blank area: keep order, we don't change positions array below
-        return newOrder;
-      }
-
-      const destIdx = newOrder.indexOf(destinationId);
-
-      if (destIdx === -1) return newOrder;
-
-      // Swap indices
-      [newOrder[sourceIdx], newOrder[destIdx]] = [
-        newOrder[destIdx],
-        newOrder[sourceIdx],
-      ];
-
-      // Swap positions between source and destination so they trade places
-      if (destinationId) {
-        setWidgetPositions((pos) => {
-          const srcPos = pos[sourceId];
-          const destPos = pos[destinationId];
-          if (!srcPos || !destPos) return pos;
-          return {
-            ...pos,
-            [sourceId]: destPos,
-            [destinationId]: srcPos,
-          };
-        });
-      }
-
-      return newOrder;
-    });
-  };
-
   // Persist layout whenever order or positions change, and on page unload
   useEffect(() => {
-    const save = () => {
-      if (!hasUserMovedWidget.current) return;
-      localStorage.setItem(
-        "crmFreeformLayout",
-        JSON.stringify({
-          order: widgets,
-          positions: widgetPositions,
-          sizes: widgetSizes,
-        })
-      );
-    };
+    const save = () => saveLayout();
 
     if (layoutMode === "list") save();
     window.addEventListener("beforeunload", save);
     return () => window.removeEventListener("beforeunload", save);
-  }, [widgets, widgetPositions, widgetSizes, layoutMode]);
+  }, [widgets, widgetPositions, widgetSizes, layoutMode, saveLayout]);
 
   return (
     <Box
@@ -468,42 +206,14 @@ export default function CRMPrototypeDashboard() {
               p: 2,
             }}
           >
-            <Button variant='contained' color='primary' onClick={toggleLayout}>
-              switch to {layoutMode === "grid" ? "Freeform" : "Grid View"}{" "}
-              Layout
-            </Button>
-            {layoutMode === "list" && (
-              <Button
-                sx={{ ml: 2 }}
-                variant='outlined'
-                color='secondary'
-                onClick={() => {
-                  hasUserMovedWidget.current = true;
-                  const payload = {
-                    order: widgets,
-                    positions: widgetPositions,
-                    sizes: widgetSizes,
-                  };
-                  localStorage.setItem(
-                    "crmFreeformLayout",
-                    JSON.stringify(payload)
-                  );
-                  setSaveSnackbarOpen(true);
-                }}
-              >
-                Save Layout
-              </Button>
-            )}
-            {layoutMode === "list" && (
-              <Button
-                sx={{ ml: 2 }}
-                variant='outlined'
-                color='secondary'
-                onClick={() => setWidgetStoreOpen(true)}
-              >
-                Add Widget
-              </Button>
-            )}
+            <LayoutToolbar
+              layoutMode={layoutMode}
+              onToggleLayout={toggleLayout}
+              onSaveLayout={() => {
+                saveLayout();
+              }}
+              onAddWidget={() => setWidgetStoreOpen(true)}
+            />
           </Box>
           {layoutMode === "grid" ? (
             <DashBoardGrid>
@@ -623,21 +333,6 @@ export default function CRMPrototypeDashboard() {
         availableWidgets={availableWidgets}
         onAddWidget={handleAddWidget}
       />
-      {/* Save confirmation snackbar */}
-      <Snackbar
-        open={saveSnackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSaveSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSaveSnackbarOpen(false)}
-          severity='success'
-          sx={{ width: "100%" }}
-        >
-          Layout saved successfully!
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
